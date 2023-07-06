@@ -759,7 +759,7 @@ output_morse_sound_setting.set_text("50")
 
 # Âm thanh
 pygame.mixer.init()
-pygame.mixer.music.load("asset\\Sound\\music.wav")
+pygame.mixer.music.load("asset\\Sound\\music.mp3")
 pygame.mixer.music.play(-1)
 pygame.mixer.music.set_endevent(pygame.USEREVENT)
 pygame.mixer_music.set_volume(0.5)
