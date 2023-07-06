@@ -1,35 +1,39 @@
 import urllib.request
 import zipfile
 import subprocess
+import os
+import shutil
 
-# địa chỉ của file phiên bản trên server
-version_url = 'http://myserver.com/myapp_version.txt'
-
-# địa chỉ của file phần mềm mới trên server
-software_url = 'http://myserver.com/myapp.zip'
-
-# phiên bản hiện tại của phần mềm, giả sử là 1.0
-current_version = '1.0'
+version_url = 'https://raw.githubusercontent.com/minhtrietn/CODE_TRANSLATE/main/version.txt'
+software_url = 'https://github.com/minhtrietn/CODE_TRANSLATE/archive/refs/heads/main.zip'
+current_version = open("version.txt", "r")
 
 response = urllib.request.urlopen(version_url)
-
-# đọc phiên bản mới từ file
 new_version = response.read().decode('utf-8').strip()
+print(new_version)
 
 if new_version > current_version:
-    # có phiên bản mới, bắt đầu tải file về
     print('Có phiên bản phần mềm mới. Đang tải về...')
-    urllib.request.urlretrieve(software_url, 'myapp.zip')
+    urllib.request.urlretrieve(software_url, 'CODE_TRANSLATE.zip')
 
-    # giải nén file zip
-    with zipfile.ZipFile('myapp.zip', 'r') as zip_ref:
-        zip_ref.extractall('myapp')
+    with zipfile.ZipFile('CODE_TRANSLATE.zip', 'r') as zip_ref:
+        zip_ref.extractall()
 
-    # cài đặt phần mềm mới, tùy thuộc vào cách cài đặt phần mềm của bạn
-    # ví dụ: nếu phần mềm của bạn là python script:
-    subprocess.check_call(['pip', 'install', '-r', 'myapp/requirements.txt'])
-    # sau đó chạy file python mà bạn muốn
-    subprocess.check_call(['python', 'myapp/myapp.py'])
+    for i in os.listdir("CODE_TRANSLATE-main"):
+        if i in os.listdir(os.getcwd()):
+            try:
+                os.remove(i)
+            except PermissionError:
+                shutil.rmtree(i)
+
+    for i in os.listdir("CODE_TRANSLATE-main"):
+        os.replace("CODE_TRANSLATE-main/{}".format(i), i)
+
+    os.remove("CODE_TRANSLATE.zip")
+    os.rmdir("CODE_TRANSLATE-main")
+    subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
+
+print("Đã hoàn tất việc nâng cấp!")
 
 # **********************************************************************************************************************
 # **********************************************************************************************************************
