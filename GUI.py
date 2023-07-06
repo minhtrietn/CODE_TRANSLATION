@@ -6,11 +6,10 @@ import shutil
 
 version_url = 'https://raw.githubusercontent.com/minhtrietn/CODE_TRANSLATE/main/version.txt'
 software_url = 'https://github.com/minhtrietn/CODE_TRANSLATE/archive/refs/heads/main.zip'
-current_version = open("version.txt", "r")
+current_version = str(open("version.txt", "r"))
 
 response = urllib.request.urlopen(version_url)
 new_version = response.read().decode('utf-8').strip()
-print(new_version)
 
 if new_version > current_version:
     print('Có phiên bản phần mềm mới. Đang tải về...')
@@ -33,7 +32,7 @@ if new_version > current_version:
     os.rmdir("CODE_TRANSLATE-main")
     subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
 
-print("Đã hoàn tất việc nâng cấp!")
+    print("Đã hoàn tất việc nâng cấp!")
 
 # **********************************************************************************************************************
 # **********************************************************************************************************************
