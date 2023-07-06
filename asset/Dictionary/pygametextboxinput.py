@@ -5,7 +5,7 @@ Borrowed from https://github.com/Jack7511/pygame-textbox-input under the MIT Lic
 
 Some part of code is Borrowed from https://github.com/Nearoo/pygame-text-input under the MIT license.
 """
-from MORSE_SEMAPHORE.asset.Dictionary.Button import AAfilledRoundedRect
+from CODE_TRANSLATE.asset.Dictionary.Button import AAfilledRoundedRect
 from math import ceil
 import pygame
 import pygame.locals as pl
