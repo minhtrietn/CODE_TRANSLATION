@@ -1,0 +1,5 @@
+pygame
+pygame-widgets
+pyttsx3
+sounddevice
+numpy
