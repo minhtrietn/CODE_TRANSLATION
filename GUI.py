@@ -39,16 +39,19 @@ if new_version > current_version:
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
-from asset.Dictionary.Button import *
-from asset.Dictionary.pygametextboxinput import *
-from pygame_widgets.slider import Slider
-import tkinter as tk
-from tkinter.filedialog import askopenfilename
-import pygame_widgets
-import pygame
-import pyttsx3
-import sounddevice
-import numpy as np
+try:
+    from asset.Dictionary.Button import *
+    from asset.Dictionary.pygametextboxinput import *
+    from pygame_widgets.slider import Slider
+    import tkinter as tk
+    from tkinter.filedialog import askopenfilename
+    import pygame_widgets
+    import pygame
+    import pyttsx3
+    import sounddevice
+    import numpy as np
+except ModuleNotFoundError:
+    os.system("setup.bat")
 
 # Tạo GUI
 pygame.init()
