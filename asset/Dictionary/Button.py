@@ -43,6 +43,7 @@ class Button_TEXT:
         self.border_check = border_check
 
     def __init__(self, text, font, width, height, pos, color, scaled, radius=0.5):
+        self.check_disable = False
         self.text = text
         self.color_border = (255, 255, 255)
         self.border_check = False
@@ -73,72 +74,125 @@ class Button_TEXT:
             self.state = "update"
 
     def draw(self, surface):
+        if not self.check_disable:
+            if self.state == "update":
+                if self.border_check:
+                    self.rect_border.size = (self.width - self.dynamic_scaled + self.border_thickness,
+                                             self.height - self.dynamic_scaled + self.border_thickness)
+                    self.rect_border.x = self.original_x_pos_border + (
+                            self.original_x_pos_border - self.original_x_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
+                    self.rect_border.y = self.original_y_pos_border + (
+                            self.original_y_pos_border - self.original_y_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
+                    AAfilledRoundedRect(surface,
+                                        self.rect_border,
+                                        self.color_border,
+                                        self.radius
+                                        )
 
-        if self.state == "update":
-            if self.border_check:
-                self.rect_border.size = (self.width - self.dynamic_scaled + self.border_thickness,
-                                         self.height - self.dynamic_scaled + self.border_thickness)
-                self.rect_border.x = self.original_x_pos_border + (
-                        self.original_x_pos_border - self.original_x_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
-                self.rect_border.y = self.original_y_pos_border + (
-                        self.original_y_pos_border - self.original_y_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
+                self.rect.size = (self.width - self.dynamic_scaled, self.height - self.dynamic_scaled)
+                self.rect.x = self.original_x_pos + self.dynamic_scaled / 2
+                self.rect.y = self.original_y_pos + self.dynamic_scaled / 2
                 AAfilledRoundedRect(surface,
-                                    self.rect_border,
-                                    self.color_border,
+                                    self.rect,
+                                    self.color,
                                     self.radius
                                     )
 
-            self.rect.size = (self.width - self.dynamic_scaled, self.height - self.dynamic_scaled)
-            self.rect.x = self.original_x_pos + self.dynamic_scaled / 2
-            self.rect.y = self.original_y_pos + self.dynamic_scaled / 2
-            AAfilledRoundedRect(surface,
-                                self.rect,
-                                self.color,
-                                self.radius
-                                )
+                self.font2 = pygame.font.Font(self.font[0], self.font[1] - self.dynamic_scaled // 4)
+                self.text_surf = self.font2.render(self.text, True, self.font[2] if len(self.font) > 2 else (255, 255, 255))
+                self.text_rect = self.text_surf.get_rect(center=self.rect.center)
+                self.state = "normal"
+            else:
+                if self.border_check:
+                    AAfilledRoundedRect(surface,
+                                        self.rect_border,
+                                        self.color_border,
+                                        self.radius
+                                        )
+                AAfilledRoundedRect(surface,
+                                    self.rect,
+                                    self.color, self.radius
+                                    )
+                self.state = "update"
 
-            self.font2 = pygame.font.Font(self.font[0], self.font[1] - self.dynamic_scaled // 4)
-            self.text_surf = self.font2.render(self.text, True, self.font[2] if len(self.font) > 2 else (255, 255, 255))
-            self.text_rect = self.text_surf.get_rect(center=self.rect.center)
-            self.state = "normal"
+            surface.blit(self.text_surf, self.text_rect)
+            return self.check_click()
         else:
-            if self.border_check:
+            if self.state == "update":
+                if self.border_check:
+                    self.rect_border.size = (self.width - self.dynamic_scaled + self.border_thickness,
+                                             self.height - self.dynamic_scaled + self.border_thickness)
+                    self.rect_border.x = self.original_x_pos_border + (
+                            self.original_x_pos_border - self.original_x_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
+                    self.rect_border.y = self.original_y_pos_border + (
+                            self.original_y_pos_border - self.original_y_pos) / 2 + self.dynamic_scaled / 2 + self.border_thickness
+                    AAfilledRoundedRect(surface,
+                                        self.rect_border,
+                                        self.color_border,
+                                        self.radius
+                                        )
+
+                self.rect.size = (self.width - self.dynamic_scaled, self.height - self.dynamic_scaled)
+                self.rect.x = self.original_x_pos + self.dynamic_scaled / 2
+                self.rect.y = self.original_y_pos + self.dynamic_scaled / 2
                 AAfilledRoundedRect(surface,
-                                    self.rect_border,
-                                    self.color_border,
+                                    self.rect,
+                                    self.color,
                                     self.radius
                                     )
-            AAfilledRoundedRect(surface,
-                                self.rect,
-                                self.color, self.radius
-                                )
-            self.state = "update"
 
-        surface.blit(self.text_surf, self.text_rect)
-        return self.check_click()
+                self.font2 = pygame.font.Font(self.font[0], self.font[1] - self.dynamic_scaled // 4)
+                self.text_surf = self.font2.render(self.text, True,
+                                                   self.font[2] if len(self.font) > 2 else (255, 255, 255))
+                self.text_rect = self.text_surf.get_rect(center=self.rect.center)
+                self.state = "normal"
+            else:
+                if self.border_check:
+                    AAfilledRoundedRect(surface,
+                                        self.rect_border,
+                                        self.color_border,
+                                        self.radius
+                                        )
+                AAfilledRoundedRect(surface,
+                                    self.rect,
+                                    self.color, self.radius
+                                    )
+                self.state = "update"
+
+            surface.blit(self.text_surf, self.text_rect)
 
     def check_click(self):
-        mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            if pygame.mouse.get_pressed()[0]:
-                if self.dynamic_scaled != self.scaled:
-                    self.dynamic_scaled = self.scaled
-                    self.update_state("update")
-                self.clicked = True
-            else:
-                if self.clicked:
-                    self.clicked = False
-                    return True
-                if self.dynamic_scaled != 0:
-                    self.dynamic_scaled = 0
-                    self.update_state("update")
-        elif self.dynamic_scaled != self.scaled:
-            self.dynamic_scaled = self.scaled
-            self.update_state("update")
+        if not self.check_disable:
+            mouse_pos = pygame.mouse.get_pos()
+            if self.rect.collidepoint(mouse_pos):
+                if pygame.mouse.get_pressed()[0]:
+                    if self.dynamic_scaled != self.scaled:
+                        self.dynamic_scaled = self.scaled
+                        self.update_state("update")
+                    self.clicked = True
+                else:
+                    if self.clicked:
+                        self.clicked = False
+                        return True
+                    if self.dynamic_scaled != 0:
+                        self.dynamic_scaled = 0
+                        self.update_state("update")
+            elif self.dynamic_scaled != self.scaled:
+                self.dynamic_scaled = self.scaled
+                self.update_state("update")
+        else:
+            return False
+
+    def disable(self):
+        self.check_disable = True
+
+    def enable(self):
+        self.check_disable = False
 
 
 class Button_IMG:
     def __init__(self, x=0, y=0, image=None, scale=0, scale_change=0):
+        self.check_disable = False
         self.x = x
         self.y = y
         self.image = image
@@ -154,14 +208,19 @@ class Button_IMG:
         self.state = "normal"
 
     def draw(self, surface):
-        if self.state == "update":
-            self.imaged = pygame.transform.smoothscale(self.image,
-                                                       (int(self.width * self.scaled),
-                                                        int(self.height * self.scaled)))
-            self.state = "normal"
-        surface.blit(self.imaged, (self.rect.x + (self.width * self.scale - int(self.width * self.scaled)) / 2,
-                                   self.rect.y + (self.height * self.scale - int(self.height * self.scaled)) / 2))
-        return self.check_click()
+        if not self.check_disable:
+            if self.state == "update":
+                self.imaged = pygame.transform.smoothscale(self.image,
+                                                           (int(self.width * self.scaled),
+                                                            int(self.height * self.scaled)))
+                self.state = "normal"
+            surface.blit(self.imaged, (self.rect.x + (self.width * self.scale - int(self.width * self.scaled)) / 2,
+                                       self.rect.y + (self.height * self.scale - int(self.height * self.scaled)) / 2))
+            return self.check_click()
+        else:
+            surface.blit(self.imaged, (self.rect.x + (self.width * self.scale - int(self.width * self.scaled)) / 2,
+                                       self.rect.y + (self.height * self.scale - int(self.height * self.scaled)) / 2))
+            return self.check_click()
 
     def update_state(self, new_state):
         if self.state != new_state:
@@ -169,22 +228,31 @@ class Button_IMG:
 
     def check_click(self):
         mouse_pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            if pygame.mouse.get_pressed()[0]:
-                if self.scaled != self.scale:
-                    self.scaled = self.scale
-                    self.update_state("update")
-                self.clicked = True
-            else:
-                if self.clicked:
-                    self.clicked = False
-                    return True
-                if self.scaled != self.scale + self.scale_change:
-                    self.scaled = self.scale + self.scale_change
-                    self.update_state("update")
-        elif self.scaled != self.scale:
-            self.scaled = self.scale
-            self.update_state("update")
+        if not self.check_disable:
+            if self.rect.collidepoint(mouse_pos):
+                if pygame.mouse.get_pressed()[0]:
+                    if self.scaled != self.scale:
+                        self.scaled = self.scale
+                        self.update_state("update")
+                    self.clicked = True
+                else:
+                    if self.clicked:
+                        self.clicked = False
+                        return True
+                    if self.scaled != self.scale + self.scale_change:
+                        self.scaled = self.scale + self.scale_change
+                        self.update_state("update")
+            elif self.scaled != self.scale:
+                self.scaled = self.scale
+                self.update_state("update")
+        else:
+            return False
+
+    def disable(self):
+        self.check_disable = True
+
+    def enable(self):
+        self.check_disable = False
 
 
 class Animation_Toggle:
