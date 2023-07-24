@@ -1,39 +1,5 @@
-import urllib.request
-import zipfile
-import subprocess
-import os
-import shutil
-
-version_url = 'https://raw.githubusercontent.com/minhtrietn/CODE_TRANSLATE/main/version.txt'
-software_url = 'https://github.com/minhtrietn/CODE_TRANSLATE/archive/refs/heads/main.zip'
-current_version = str(open("version.txt", "r").readline())
-
-response = urllib.request.urlopen(version_url)
-new_version = response.read().decode('utf-8').strip()
-
-if new_version > current_version:
-    print('Có phiên bản phần mềm mới. Đang tải về...')
-    urllib.request.urlretrieve(software_url, 'CODE_TRANSLATE.zip')
-
-    with zipfile.ZipFile('CODE_TRANSLATE.zip', 'r') as zip_ref:
-        zip_ref.extractall()
-
-    for i in os.listdir("CODE_TRANSLATE-main"):
-        if i in os.listdir(os.getcwd()):
-            try:
-                os.remove(i)
-            except PermissionError:
-                shutil.rmtree(i)
-
-    for i in os.listdir("CODE_TRANSLATE-main"):
-        os.replace("CODE_TRANSLATE-main/{}".format(i), i)
-
-    os.remove("CODE_TRANSLATE.zip")
-    os.rmdir("CODE_TRANSLATE-main")
-    subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
-
-    print("Đã hoàn tất việc nâng cấp!")
-
+import runpy
+runpy.run_module("check_version")
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
@@ -43,6 +9,7 @@ try:
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
     from pygame_widgets.slider import Slider
+    from asset.Dictionary.pygame_imslider import *
     import tkinter as tk
     from tkinter.filedialog import askopenfilename
     import pygame_widgets
@@ -69,6 +36,18 @@ root = tk.Tk()
 root.withdraw()
 image_icon_tk = tk.PhotoImage(file="asset\\Image\\icon.png")
 root.iconphoto(False, image_icon_tk)
+
+
+# Hàm hỗ trợ
+def help():
+    global bool_help_clicked
+    slider_help.update(events)
+    rect_slider_help = slider_help.draw(surface_screen, True)
+
+    if surface_button_quit_help.draw(surface_screen):
+        bool_help_clicked = False
+
+    pygame.display.update(rect_slider_help)
 
 
 # Hàm chế độ MORSE
@@ -140,7 +119,17 @@ def MORSE():
             sound_click_sfx.play()
 
         filename = askopenfilename()
-        print(filename)
+
+        if filename[-4:] == ".txt":
+            string_filename = ""
+            for i in open(filename, "r").readlines():
+                string_filename += i
+            text_box.set_text(string_filename)
+            print(string_filename)
+        elif filename[-4:] == "":
+            pass
+        else:
+            raise ValueError("File name must to .text")
 
     if surface_back_button.draw(surface_screen):
         if bool_check_effect:
@@ -166,19 +155,25 @@ def MORSE():
                 string_input = text_box.get_text().replace(text_box_dot.get_text(), ".")
             if text_box_.get_text() != "":
                 string_input = string_input.replace(text_box_.get_text(), "-")
-        word = string_input.split()
-        text = ""
+        word = string_input.replace("\n", " \n ")
         if string_input == "":
             text_box2.set_text("")
+        word = word.split(" ")
+        text = ""
         for i in word:
             try:
                 text += dic_morse_to_text[i]
                 text_box2.set_text(text)
             except KeyError:
-                if len(text) == 0:
-                    text += "#"
+                if i == "\n":
+                    text += "\n"
+                elif i == "":
+                    pass
                 else:
-                    text += "# "
+                    if len(text) == 0:
+                        text += "#"
+                    else:
+                        text += "# "
                 text_box2.set_text(text)
     else:
         if text_box_dot.get_text() == "" and text_box_.get_text() == "":
@@ -196,8 +191,12 @@ def MORSE():
                 text += dic_text_to_morse[i] + " "
                 text_box2.set_text(text)
             except KeyError:
-                text += "#"
-                text_box2.set_text(text)
+                if i == "\n":
+                    text = text[:-1]
+                    text += "\n"
+                else:
+                    text += "#"
+                    text_box2.set_text(text)
 
     if bool_morse_setting_clicked:
         morse_setting()
@@ -284,13 +283,10 @@ def morse_setting():
     pygame_widgets.update(events)
 
 
-def play_morse_code(morse_code, volume=1.0):
-    dot_duration = 0.1
+def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
     dash_duration = 3 * dot_duration
     pause_duration = dot_duration
     space_duration = 7 * dot_duration
-
-    frequency = 440
 
     dot_waveform = np.sin(2 * np.pi * frequency * np.arange(int(dot_duration * 44100)) / 44100)
     dash_waveform = np.sin(2 * np.pi * frequency * np.arange(int(dash_duration * 44100)) / 44100)
@@ -305,12 +301,8 @@ def play_morse_code(morse_code, volume=1.0):
             waveform.append(dash_waveform)
         elif char == " ":
             waveform.append(space_waveform)
-        elif char == "/":
-            continue
-        elif char == "#":
-            continue
         else:
-            raise ValueError(f"Invalid character: {char}")
+            continue
 
         waveform.append(pause_waveform)
 
@@ -502,7 +494,7 @@ def slider_effect_event():
 
 # MENU
 def main():
-    global bool_running, bool_options_clicked, bool_morse_clicked
+    global bool_running, bool_options_clicked, bool_morse_clicked, bool_help_clicked
 
     clock.tick(fps)
 
@@ -533,6 +525,13 @@ def main():
 
         bool_running = False
 
+    # Chế độ hỗ trợ
+    if surface_button_help.draw(surface_screen) and not bool_options_clicked:
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        bool_help_clicked = not bool_help_clicked
+
     # Chế độ cài đặt
     if surface_button_options.draw(surface_screen) and not bool_options_clicked:
         if bool_check_effect:
@@ -550,6 +549,7 @@ bool_options_clicked = False
 bool_morse_clicked = False
 bool_semaphore_clicked = False
 bool_morse_setting_clicked = False
+bool_help_clicked = False
 bool_status_mod = False
 
 bool_check_text_box_dot = False
@@ -710,7 +710,17 @@ surface_button_semaphore = Button_TEXT("SEMAPHORE",
                                        20)
 surface_button_semaphore.border((68, 68, 68), 10)
 
+surface_button_help = Button_TEXT("HELP",
+                                  ("asset\\Font\\FontsFree-Net-Montserrat-ExtraLight.ttf", 20),
+                                  100, 50,
+                                  (950, 525),
+                                  (41, 41, 41),
+                                  10)
+surface_button_help.border((68, 68, 68), 10)
+
 surface_button_quit = Button_IMG(1070, 30, image_quit, 0.1, 0.02)
+
+surface_button_quit_help = Button_IMG(970, 80, image_quit, 0.1, 0.02)
 
 surface_button_options = Button_IMG(30, 30, image_options, 0.1, 0.02)
 
@@ -763,6 +773,11 @@ output_morse_sound_setting = TextInputBox(620, 200, 60, 40, 10, 8, text_color=(2
                                           align_text="center", font_family="asset\\Font\\Public-Sans-Thin.ttf")
 output_morse_sound_setting.set_text("50")
 
+slider_help = ImSlider((900, 500), renderer=ImSliderRenderer.DARK_CUSTOM)
+slider_help.set_position((surface_screen.get_size()[0] - slider_help.get_size()[0]) / 2,
+                         (surface_screen.get_size()[1] - slider_help.get_size()[1]) / 2)
+slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png", "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png", "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
+
 # Âm thanh
 pygame.mixer.init()
 pygame.mixer.music.load("asset\\Sound\\music.mp3")
@@ -775,6 +790,13 @@ if not bool_check_music:
 sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
 
 while bool_running:
+    # Sự kiện trong chương trình
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            bool_running = False
+        elif event.type == pygame.USEREVENT and bool_check_music:
+            pygame.mixer.music.play()
 
     if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
         main()
@@ -784,10 +806,23 @@ while bool_running:
         slider_effect.disable()
         slider_morse_sound_setting.hide()
         slider_morse_sound_setting.disable()
+        if bool_help_clicked:
+            help()
+            surface_button_morse.disable()
+            surface_button_semaphore.disable()
+            surface_button_options.disable()
+        else:
+            surface_button_morse.enable()
+            surface_button_semaphore.enable()
+            surface_button_options.enable()
     elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
         options()
+        if bool_help_clicked:
+            help()
     elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked:
         MORSE()
+        if bool_help_clicked:
+            help()
 
     if bool_check_FPS:
         fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
@@ -798,11 +833,3 @@ while bool_running:
         surface_screen.blit(fps_screen, (0, 580))
 
     pygame.display.flip()
-
-    # Sự kiện trong chương trình
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            bool_running = False
-        elif event.type == pygame.USEREVENT and bool_check_music:
-            pygame.mixer.music.play()
