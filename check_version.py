@@ -6,10 +6,10 @@ import shutil
 
 version_url = 'https://raw.githubusercontent.com/minhtrietn/CODE_TRANSLATE/main/version.txt'
 software_url = 'https://github.com/minhtrietn/CODE_TRANSLATE/archive/refs/heads/main.zip'
-current_version = str(open("version.txt", "r").readline())
+current_version = float(str(open("version.txt", "r").readline()))
 
 response = urllib.request.urlopen(version_url)
-new_version = response.read().decode('utf-8').strip()
+new_version = float(response.read().decode('utf-8').strip())
 
 if new_version > current_version:
     print('Có phiên bản phần mềm mới. Đang tải về...')
