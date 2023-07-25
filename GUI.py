@@ -1,4 +1,5 @@
 import runpy
+
 runpy.run_module("check_version")
 # **********************************************************************************************************************
 # **********************************************************************************************************************
@@ -13,6 +14,7 @@ try:
     import tkinter as tk
     from tkinter.filedialog import askopenfilename
     import pygame_widgets
+    import time
     import pygame
     import pyttsx3
     import sounddevice
@@ -39,7 +41,7 @@ root.iconphoto(False, image_icon_tk)
 
 
 # Hàm hỗ trợ
-def help():
+def help_main():
     global bool_help_clicked
     slider_help.update(events)
     rect_slider_help = slider_help.draw(surface_screen, True)
@@ -50,9 +52,21 @@ def help():
     pygame.display.update(rect_slider_help)
 
 
+def help_options():
+    pass
+
+
+def help_MORSE():
+    pass
+
+
+def help_SEMAPHORE():
+    pass
+
+
 # Hàm chế độ MORSE
 def MORSE():
-    global bool_morse_clicked, bool_status_mod, dic_morse_to_text, dic_text_to_morse, temp_pos1, temp_pos2, text_Morse_surface, text_Document_surface, bool_morse_setting_clicked, text_temp2, text_temp1, string_input
+    global fps, bool_morse_clicked, bool_status_mod, bool_value_error, dic_morse_to_text, dic_text_to_morse, temp_pos1, temp_pos2, text_Morse_surface, text_Document_surface, bool_morse_setting_clicked, text_temp2, text_temp1, string_input, int_check_starter
 
     clock.tick(fps)
 
@@ -125,11 +139,11 @@ def MORSE():
             for i in open(filename, "r").readlines():
                 string_filename += i
             text_box.set_text(string_filename)
-            print(string_filename)
         elif filename[-4:] == "":
             pass
         else:
-            raise ValueError("File name must to .text")
+            bool_value_error = True
+            int_check_starter = 1
 
     if surface_back_button.draw(surface_screen):
         if bool_check_effect:
@@ -146,6 +160,11 @@ def MORSE():
             text_box.status = True
         else:
             bool_morse_setting_clicked = True
+
+    if bool_value_error:
+        value_error_gui()
+    else:
+        int_check_starter = 0
 
     if not bool_status_mod:
         if text_box_dot.get_text() == "" and text_box_.get_text() == "":
@@ -200,6 +219,31 @@ def MORSE():
 
     if bool_morse_setting_clicked:
         morse_setting()
+
+
+def value_error_gui():
+    global bool_value_error, int_check_starter, time_start
+    surface_screen_value_error = pygame.Surface((750, 400)).convert_alpha()
+    surface_screen_value_error.fill((37, 37, 37))
+    surface_screen_value_error.set_alpha(230)
+    surface_screen.blit(surface_screen_value_error, (175, 100))
+
+    surface_screen.blit(image_warning, (200, 237.5))
+    surface_screen.blit(text_value_error, (345, 269.5))
+
+    pos_value_error = (175, 100)
+    rect_value_error = pygame.rect.Rect(pos_value_error + surface_screen_value_error.get_size())
+
+    if not rect_value_error.collidepoint(mouse_pos):
+        if pygame.mouse.get_pressed()[0]:
+            bool_value_error = False
+
+    if int_check_starter == 1:
+        time_start = time.perf_counter()
+        int_check_starter += 1
+
+    if time.perf_counter() - time_start >= 5.0:
+        bool_value_error = False
 
 
 def morse_setting():
@@ -313,10 +357,13 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
 
 # Hàm chế độ SEMAPHORE
+def SEMAPHORE():
+    pass
+
 
 # Hàm chế độ cài đặt
 def options():
-    global bool_options_clicked, bool_check_FPS, bool_check_music, bool_check_effect, text_options, image_scale, image_fps, text_fps, image_music, text_music, image_effect, text_effect, temp_val_music, temp_val_effect
+    global fps, bool_options_clicked, bool_check_FPS, bool_check_music, bool_check_effect, text_options, image_scale, image_fps, text_fps, image_music, text_music, image_effect, text_effect, temp_val_music, temp_val_effect
 
     int_dt = clock.tick(fps) / 1000.0
 
@@ -494,7 +541,7 @@ def slider_effect_event():
 
 # MENU
 def main():
-    global bool_running, bool_options_clicked, bool_morse_clicked, bool_help_clicked
+    global bool_running, bool_options_clicked, bool_morse_clicked, bool_semaphore_clicked, bool_help_clicked, fps
 
     clock.tick(fps)
 
@@ -516,7 +563,7 @@ def main():
         if bool_check_effect:
             sound_click_sfx.play()
 
-        print("CLICKED")
+        # bool_semaphore_clicked = True
 
     # Chế độ thoát
     if surface_button_quit.draw(surface_screen) and not bool_options_clicked:
@@ -551,6 +598,7 @@ bool_semaphore_clicked = False
 bool_morse_setting_clicked = False
 bool_help_clicked = False
 bool_status_mod = False
+bool_value_error = False
 
 bool_check_text_box_dot = False
 bool_check_text_box_ = False
@@ -571,6 +619,8 @@ temp_text_dot = ""
 temp_text_ = ""
 text_temp1 = ""
 text_temp2 = ""
+int_check_starter = 0
+time_start = 0
 string_input = ""
 
 # Thư viện morse
@@ -621,6 +671,11 @@ image_setting = pygame.image.load("asset\\Image\\SETTING.png").convert_alpha()
 image_speaker = pygame.image.load("asset\\Image\\SPEAKER.png").convert_alpha()
 
 image_upload = pygame.image.load("asset\\Image\\UPLOAD.png").convert_alpha()
+
+image_warning = pygame.image.load("asset\\Image\\WARNING.png").convert_alpha()
+image_warning_size = image_warning.get_size()
+image_warning = pygame.transform.smoothscale(image_warning,
+                                             (image_warning_size[0] * 0.25, image_warning_size[1] * 0.25))
 
 # Các chữ
 text_options = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf", 56).render("Options", True, "#FFFFFF")
@@ -689,6 +744,9 @@ text_box_ = TextInputBox(370,
 text_Document_surface = surface_screen.blit(text_Document, (temp_pos1, 150))
 
 text_Morse_surface = surface_screen.blit(text_Morse, (temp_pos2, 150))
+
+text_value_error = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf", 50).render("File format have to .txt", True,
+                                                                                      "#000000")
 
 # Kiểu chữ
 font_fps = pygame.font.Font(None, 30)
@@ -776,7 +834,9 @@ output_morse_sound_setting.set_text("50")
 slider_help = ImSlider((900, 500), renderer=ImSliderRenderer.DARK_CUSTOM)
 slider_help.set_position((surface_screen.get_size()[0] - slider_help.get_size()[0]) / 2,
                          (surface_screen.get_size()[1] - slider_help.get_size()[1]) / 2)
-slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png", "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png", "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
+slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png",
+                         "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png",
+                         "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
 
 # Âm thanh
 pygame.mixer.init()
@@ -807,7 +867,7 @@ while bool_running:
         slider_morse_sound_setting.hide()
         slider_morse_sound_setting.disable()
         if bool_help_clicked:
-            help()
+            help_main()
             surface_button_morse.disable()
             surface_button_semaphore.disable()
             surface_button_options.disable()
@@ -818,11 +878,15 @@ while bool_running:
     elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
         options()
         if bool_help_clicked:
-            help()
+            help_options()
     elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked:
         MORSE()
         if bool_help_clicked:
-            help()
+            help_MORSE()
+    elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked:
+        SEMAPHORE()
+        if bool_help_clicked:
+            help_SEMAPHORE()
 
     if bool_check_FPS:
         fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
