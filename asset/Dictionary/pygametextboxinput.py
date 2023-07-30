@@ -5,11 +5,14 @@ Borrowed from https://github.com/Jack7511/pygame-textbox-input under the MIT Lic
 
 Some part of code is Borrowed from https://github.com/Nearoo/pygame-text-input under the MIT license.
 """
-from CODE_TRANSLATE.asset.Dictionary.Button import AAfilledRoundedRect
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from Button import AAfilledRoundedRect
 from math import ceil
 import pygame
 import pygame.locals as pl
-import os
 
 pygame.init()
 pygame.font.init()
