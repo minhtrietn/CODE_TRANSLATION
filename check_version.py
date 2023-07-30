@@ -17,7 +17,8 @@ response = urllib.request.urlopen(version_url)
 new_version = (response.read().decode('utf-8').strip())
 
 if versiontuple(new_version) > versiontuple(current_version):
-    print('Có phiên bản phần mềm mới. Đang tải về...')
+    print("Có phiên bản phần mềm mới. Đang tải về...")
+    print("VUI LÒNG KHÔNG THOÁT TRÁNH GÂY LỖI CHƯƠNG TRÌNH")
     urllib.request.urlretrieve(software_url, 'CODE_TRANSLATE.zip')
 
     with zipfile.ZipFile('CODE_TRANSLATE.zip', 'r') as zip_ref:
