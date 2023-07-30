@@ -1,6 +1,0 @@
-pygame==2.5.0
-pygame-widgets==1.1.1
-pyttsx3==2.90
-sounddevice==0.4.6
-numpy==1.25.1
-pygame-imslider==1.0.2
