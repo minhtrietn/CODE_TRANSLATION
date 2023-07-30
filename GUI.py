@@ -20,7 +20,20 @@ try:
     import sounddevice
     import numpy as np
 except ModuleNotFoundError:
+    import os
     os.system("setup.bat")
+    from asset.Dictionary.Button import *
+    from asset.Dictionary.pygametextboxinput import *
+    from pygame_widgets.slider import Slider
+    from asset.Dictionary.pygame_imslider import *
+    import tkinter as tk
+    from tkinter.filedialog import askopenfilename
+    import pygame_widgets
+    import time
+    import pygame
+    import pyttsx3
+    import sounddevice
+    import numpy as np
 
 # Tạo GUI
 pygame.init()
@@ -42,7 +55,7 @@ root.iconphoto(False, image_icon_tk)
 
 # Hàm hỗ trợ
 def help_main():
-    global bool_help_clicked
+    global bool_help_clicked, events
     slider_help.update(events)
     rect_slider_help = slider_help.draw(surface_screen, True)
 
@@ -222,7 +235,7 @@ def MORSE():
 
 
 def value_error_gui():
-    global bool_value_error, int_check_starter, time_start
+    global bool_value_error, int_check_starter, time_start, mouse_pos
     surface_screen_value_error = pygame.Surface((750, 400)).convert_alpha()
     surface_screen_value_error.fill((37, 37, 37))
     surface_screen_value_error.set_alpha(230)
@@ -540,7 +553,7 @@ def slider_effect_event():
 
 
 # MENU
-def main():
+def menu():
     global bool_running, bool_options_clicked, bool_morse_clicked, bool_semaphore_clicked, bool_help_clicked, fps
 
     clock.tick(fps)
@@ -602,6 +615,9 @@ bool_value_error = False
 
 bool_check_text_box_dot = False
 bool_check_text_box_ = False
+
+events = pygame.event.get()
+mouse_pos = pygame.mouse.get_pos()
 
 clock = pygame.time.Clock()
 fps = 60
@@ -745,8 +761,10 @@ text_Document_surface = surface_screen.blit(text_Document, (temp_pos1, 150))
 
 text_Morse_surface = surface_screen.blit(text_Morse, (temp_pos2, 150))
 
-text_value_error = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf", 50).render("File format have to .txt", True,
-                                                                                      "#000000")
+text_value_error = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf",
+                                    50).render("File format have to .txt",
+                                               True,
+                                               "#000000")
 
 # Kiểu chữ
 font_fps = pygame.font.Font(None, 30)
@@ -754,7 +772,8 @@ font_fps = pygame.font.Font(None, 30)
 # Các nút
 surface_button_morse = Button_TEXT("MORSE",
                                    ("asset\\Font\\SIFONN_BASIC_OUTLINE.otf", 42),
-                                   412, 144,
+                                   412,
+                                   144,
                                    (100, 210),
                                    (41, 41, 41),
                                    20)
@@ -762,7 +781,8 @@ surface_button_morse.border((68, 68, 68), 10)
 
 surface_button_semaphore = Button_TEXT("SEMAPHORE",
                                        ("asset\\Font\\SIFONN_BASIC_OUTLINE.otf", 40),
-                                       412, 144,
+                                       412,
+                                       144,
                                        (588, 210),
                                        (41, 41, 41),
                                        20)
@@ -770,7 +790,8 @@ surface_button_semaphore.border((68, 68, 68), 10)
 
 surface_button_help = Button_TEXT("HELP",
                                   ("asset\\Font\\FontsFree-Net-Montserrat-ExtraLight.ttf", 20),
-                                  100, 50,
+                                  100,
+                                  50,
                                   (950, 525),
                                   (41, 41, 41),
                                   10)
@@ -784,11 +805,19 @@ surface_button_options = Button_IMG(30, 30, image_options, 0.1, 0.02)
 
 surface_back_button = Button_IMG(80, 31, image_back_button, 0.2, 0.02)
 
-surface_button_animation_options_fps = Animation_Toggle((900, 165), 100, 50, 30, bool_check_FPS)
+surface_button_animation_options_fps = Animation_Toggle((900, 165),
+                                                        100,
+                                                        50,
+                                                        30,
+                                                        bool_check_FPS)
 surface_button_animation_options_fps.set_circle_color((25, 25, 25))
 surface_button_animation_options_fps.set_speed(300)
 
-surface_button_animation_options_music = Animation_Toggle((900, 315), 100, 50, 30, bool_check_music)
+surface_button_animation_options_music = Animation_Toggle((900, 315),
+                                                          100,
+                                                          50,
+                                                          30,
+                                                          bool_check_music)
 surface_button_animation_options_music.set_circle_color((25, 25, 25))
 surface_button_animation_options_music.set_speed(300)
 
@@ -807,19 +836,51 @@ surface_button_setting = Button_IMG(1060, 40, image_setting, 0.1, 0.02)
 surface_button_upload = Button_IMG(989, 520, image_upload, 0.06, 0.01)
 
 # Thanh kéo
-slider_music = Slider(surface_screen, 450, 330, 250, 20, min=0, max=100, step=1, handleColour=(255, 255, 255))
+slider_music = Slider(surface_screen,
+                      450,
+                      330,
+                      250,
+                      20,
+                      min=0,
+                      max=100,
+                      step=1,
+                      handleColour=(255, 255, 255))
 slider_music.hide()
 slider_music.disable()
 
-output_music = TextInputBox(750, 320, 60, 40, 10, 8, text_color=(255, 255, 255), font_size=20, align_text="center",
+output_music = TextInputBox(750,
+                            320,
+                            60,
+                            40,
+                            10,
+                            8,
+                            text_color=(255, 255, 255),
+                            font_size=20,
+                            align_text="center",
                             font_family="asset\\Font\\Public-Sans-Thin.ttf")
 output_music.set_text("50")
 
-slider_effect = Slider(surface_screen, 450, 480, 250, 20, min=0, max=100, step=1, handleColour=(255, 255, 255))
+slider_effect = Slider(surface_screen,
+                       450,
+                       480,
+                       250,
+                       20,
+                       min=0,
+                       max=100,
+                       step=1,
+                       handleColour=(255, 255, 255))
 slider_effect.hide()
 slider_effect.disable()
 
-output_effect = TextInputBox(750, 470, 60, 40, 10, 8, text_color=(255, 255, 255), font_size=20, align_text="center",
+output_effect = TextInputBox(750,
+                             470,
+                             60,
+                             40,
+                             10,
+                             8,
+                             text_color=(255, 255, 255),
+                             font_size=20,
+                             align_text="center",
                              font_family="asset\\Font\\Public-Sans-Thin.ttf")
 output_effect.set_text("50")
 
@@ -827,8 +888,16 @@ slider_morse_sound_setting = Slider(surface_screen, 350, 210, 250, 20, min=0, ma
 slider_morse_sound_setting.hide()
 slider_morse_sound_setting.disable()
 
-output_morse_sound_setting = TextInputBox(620, 200, 60, 40, 10, 8, text_color=(255, 255, 255), font_size=20,
-                                          align_text="center", font_family="asset\\Font\\Public-Sans-Thin.ttf")
+output_morse_sound_setting = TextInputBox(620,
+                                          200,
+                                          60,
+                                          40,
+                                          10,
+                                          8,
+                                          text_color=(255, 255, 255),
+                                          font_size=20,
+                                          align_text="center",
+                                          font_family="asset\\Font\\Public-Sans-Thin.ttf")
 output_morse_sound_setting.set_text("50")
 
 slider_help = ImSlider((900, 500), renderer=ImSliderRenderer.DARK_CUSTOM)
@@ -849,51 +918,60 @@ if not bool_check_music:
 
 sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
 
-while bool_running:
-    # Sự kiện trong chương trình
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            bool_running = False
-        elif event.type == pygame.USEREVENT and bool_check_music:
-            pygame.mixer.music.play()
 
-    if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
-        main()
-        slider_music.hide()
-        slider_music.disable()
-        slider_effect.hide()
-        slider_effect.disable()
-        slider_morse_sound_setting.hide()
-        slider_morse_sound_setting.disable()
-        if bool_help_clicked:
-            help_main()
-            surface_button_morse.disable()
-            surface_button_semaphore.disable()
-            surface_button_options.disable()
-        else:
-            surface_button_morse.enable()
-            surface_button_semaphore.enable()
-            surface_button_options.enable()
-    elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
-        options()
-        if bool_help_clicked:
-            help_options()
-    elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked:
-        MORSE()
-        if bool_help_clicked:
-            help_MORSE()
-    elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked:
-        SEMAPHORE()
-        if bool_help_clicked:
-            help_SEMAPHORE()
+def main():
+    global bool_running, events
+    while bool_running:
+        # Sự kiện trong chương trình
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                bool_running = False
+            elif event.type == pygame.USEREVENT and bool_check_music:
+                pygame.mixer.music.play()
 
-    if bool_check_FPS:
-        fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
-        rect_fps = pygame.rect.Rect(0, 580, fps_screen.get_width(), fps_screen.get_height())
-        mouse_pos = pygame.mouse.get_pos()
-        if rect_fps.collidepoint(mouse_pos):
-            fps_screen = font_fps.render("MAX FPS: {}".format(fps), True, (255, 255, 255))
-        surface_screen.blit(fps_screen, (0, 580))
+        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
+            menu()
+            slider_music.hide()
+            slider_music.disable()
+            slider_effect.hide()
+            slider_effect.disable()
+            slider_morse_sound_setting.hide()
+            slider_morse_sound_setting.disable()
+            if bool_help_clicked:
+                help_main()
+                surface_button_morse.disable()
+                surface_button_semaphore.disable()
+                surface_button_options.disable()
+            else:
+                surface_button_morse.enable()
+                surface_button_semaphore.enable()
+                surface_button_options.enable()
+        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
+            options()
+            if bool_help_clicked:
+                help_options()
+        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked:
+            MORSE()
+            if bool_help_clicked:
+                help_MORSE()
+        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked:
+            SEMAPHORE()
+            if bool_help_clicked:
+                help_SEMAPHORE()
 
-    pygame.display.flip()
+        if bool_check_FPS:
+            fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
+            rect_fps = pygame.rect.Rect(0, 580, fps_screen.get_width(), fps_screen.get_height())
+            mouse_pos = pygame.mouse.get_pos()
+            if rect_fps.collidepoint(mouse_pos):
+                fps_screen = font_fps.render("MAX FPS: {}".format(fps), True, (255, 255, 255))
+            surface_screen.blit(fps_screen, (0, 580))
+
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
