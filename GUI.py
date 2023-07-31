@@ -7,33 +7,47 @@ runpy.run_module("check_version")
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 try:
+    print("VUI LÒNG ĐỢI CHƯƠNG TRÌNH KHỞI CHẠY!")
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
-    from pygame_widgets.slider import Slider
     from asset.Dictionary.pygame_imslider import *
-    import tkinter as tk
+    from asset.Dictionary.PoseModule import *
+    from pygame_widgets.slider import Slider
     from tkinter.filedialog import askopenfilename
+    import tkinter as tk
     import pygame_widgets
+    import json
     import time
     import pygame
     import pyttsx3
     import sounddevice
+    import cv2
     import numpy as np
+
+    print("ĐÃ HOÀN THÀNH VIỆC CÀI ĐẶT THƯ VIỆN!")
+
 except ModuleNotFoundError:
     import os
+
     os.system("setup.bat")
+    print("VUI LÒNG ĐỢI CHƯƠNG TRÌNH KHỞI CHẠY!")
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
-    from pygame_widgets.slider import Slider
     from asset.Dictionary.pygame_imslider import *
-    import tkinter as tk
+    from asset.Dictionary.PoseModule import *
+    from pygame_widgets.slider import Slider
     from tkinter.filedialog import askopenfilename
+    import tkinter as tk
     import pygame_widgets
+    import json
     import time
     import pygame
     import pyttsx3
     import sounddevice
+    import cv2
     import numpy as np
+
+    print("ĐÃ HOÀN THÀNH VIỆC CÀI ĐẶT THƯ VIỆN!")
 
 # Tạo GUI
 pygame.init()
@@ -54,8 +68,15 @@ root.iconphoto(False, image_icon_tk)
 
 
 # Hàm hỗ trợ
-def help_main():
-    global bool_help_clicked, events
+def help_menu():
+    global bool_help_clicked, bool_help_menu, events
+
+    if not bool_help_menu:
+        bool_help_menu = True
+        slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png",
+                                 "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png",
+                                 "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
+
     slider_help.update(events)
     rect_slider_help = slider_help.draw(surface_screen, True)
 
@@ -74,6 +95,10 @@ def help_MORSE():
 
 
 def help_SEMAPHORE():
+    pass
+
+
+def help_OpenCV_surface():
     pass
 
 
@@ -101,27 +126,9 @@ def MORSE():
             sound_click_sfx.play()
 
         bool_status_mod = not bool_status_mod
-        if text_box_dot.get_text() == "" and text_box_.get_text() == "":
-            text_temp1 = text_box.get_text()
-            text_temp2 = text_box2.get_text()
-        else:
-            if text_box_dot.get_text() != "":
-                text_temp1 = text_box.get_text().replace(text_box_dot.get_text(), ".")
-                text_temp2 = text_box2.get_text().replace(text_box_dot.get_text(), ".")
-            if text_box_.get_text() != "":
-                text_temp1 = text_temp1.replace(text_box_.get_text(), "-")
-                text_temp2 = text_temp2.replace(text_box_.get_text(), "-")
-        temp_pos1 = text_Morse_surface.x
-        temp_pos2 = text_Document_surface.x
-
-        text_box.set_text(text_temp2)
-        text_box2.set_text(text_temp1)
-
-        text_Morse_surface.x = temp_pos2
-        text_Document_surface.x = temp_pos1
+        change_mod()
 
     text_Document_surface = surface_screen.blit(text_Document, (temp_pos1, 150))
-
     text_Morse_surface = surface_screen.blit(text_Morse, (temp_pos2, 150))
 
     if surface_button_copy.draw(surface_screen):
@@ -170,7 +177,6 @@ def MORSE():
 
         if bool_morse_setting_clicked:
             bool_morse_setting_clicked = False
-            text_box.status = True
         else:
             bool_morse_setting_clicked = True
 
@@ -232,6 +238,31 @@ def MORSE():
 
     if bool_morse_setting_clicked:
         morse_setting()
+        text_box.status = False
+    else:
+        text_box.status = True
+
+
+def change_mod():
+    global text_temp1, text_temp2, temp_pos1, temp_pos2
+    if text_box_dot.get_text() == "" and text_box_.get_text() == "":
+        text_temp1 = text_box.get_text()
+        text_temp2 = text_box2.get_text()
+    else:
+        if text_box_dot.get_text() != "":
+            text_temp1 = text_box.get_text().replace(text_box_dot.get_text(), ".")
+            text_temp2 = text_box2.get_text().replace(text_box_dot.get_text(), ".")
+        if text_box_.get_text() != "":
+            text_temp1 = text_temp1.replace(text_box_.get_text(), "-")
+            text_temp2 = text_temp2.replace(text_box_.get_text(), "-")
+    temp_pos1 = text_Morse_surface.x
+    temp_pos2 = text_Document_surface.x
+
+    text_box.set_text(text_temp2)
+    text_box2.set_text(text_temp1)
+
+    text_Morse_surface.x = temp_pos2
+    text_Document_surface.x = temp_pos1
 
 
 def value_error_gui():
@@ -260,27 +291,22 @@ def value_error_gui():
 
 
 def morse_setting():
-    global bool_morse_setting_clicked, temp_text_dot, temp_text_, bool_check_text_box_dot, bool_check_text_box_
+    global bool_morse_setting_clicked, temp_text_dot, temp_text_, bool_check_text_box_dot, bool_check_text_box_, mouse_pos
     surface_screen_morse_setting = pygame.Surface((750, 600)).convert_alpha()
     surface_screen_morse_setting.fill((118, 118, 118))
     surface_screen_morse_setting.set_alpha(230)
     surface_screen.blit(surface_screen_morse_setting, (175, 0))
 
     # Thoát cửa sổ
-    text_box.status = False
-
     pos_morse_setting = (175, 0)
     rect_morse_setting = pygame.rect.Rect(pos_morse_setting + surface_screen_morse_setting.get_size())
+    rect_button_setting = pygame.rect.Rect(surface_button_setting.rect)
 
-    rect_setting = pygame.rect.Rect(surface_button_setting.rect)
-
-    if not rect_morse_setting.collidepoint(mouse_pos) and not rect_setting.collidepoint(mouse_pos):
+    if not rect_morse_setting.collidepoint(mouse_pos) and not rect_button_setting.collidepoint(mouse_pos):
         if pygame.mouse.get_pressed()[0]:
             bool_morse_setting_clicked = False
-            text_box.status = True
 
     # Hiển thị chữ
-
     surface_screen.blit(text_Setting, (466, 25))
     surface_screen.blit(text_Characters, (200, 100))
     surface_screen.blit(text_Volume, (200, 200))
@@ -336,7 +362,6 @@ def morse_setting():
 
     # Thanh kéo âm thanh
     slider_morse_sound_setting_event()
-
     pygame_widgets.update(events)
 
 
@@ -358,6 +383,8 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
             waveform.append(dash_waveform)
         elif char == " ":
             waveform.append(space_waveform)
+        elif char == "\n":
+            waveform.append(space_waveform)
         else:
             continue
 
@@ -371,12 +398,141 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
 # Hàm chế độ SEMAPHORE
 def SEMAPHORE():
-    pass
+    global bool_semaphore_clicked, vid_cap, module_detector, font_opencv, int_frame_count, text_AI, bool_opencv_clicked, check, bool_coming_soon_clicked, fps
+
+    clock.tick(fps)
+
+    surface_screen_semaphore = pygame.Surface((1100, 600))
+    surface_screen_semaphore.fill((25, 25, 25))
+    surface_screen.blit(surface_screen_semaphore, (0, 0))
+    pygame.draw.rect(surface_screen, (255, 255, 255), (175, 100, 750, 400), 1)
+
+    surface_screen.blit(text_SEMAPHORE, (363, 20))
+    surface_screen.blit(image_leaf, (900, 340))
+
+    if surface_button_live.draw(surface_screen):
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        bool_semaphore_clicked = False
+        bool_coming_soon_clicked = True
+
+    if surface_button_import_file.draw(surface_screen):
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        filename = askopenfilename()
+        try:
+            if filename != "":
+                vid_cap = cv2.VideoCapture(filename)
+                module_detector = PoseDetector()
+                font_opencv = cv2.FONT_HERSHEY_SIMPLEX
+                int_frame_count = 0
+                text_AI = ""
+                check = True
+
+                bool_semaphore_clicked = False
+                bool_opencv_clicked = True
+        except:
+            pass
+
+    if surface_back_button.draw(surface_screen):
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        bool_semaphore_clicked = False
+
+
+def open_cv():
+    global vid_cap, module_detector, font_opencv, int_frame_count, text_AI
+
+    bool_success, image_opencv = vid_cap.read()
+
+    scale_percent = 60
+    width = int(image_opencv.shape[1] * scale_percent / 100)
+    height = int(image_opencv.shape[0] * scale_percent / 100)
+    dim = (width, height)
+
+    image_opencv = cv2.resize(image_opencv, dim, interpolation=cv2.INTER_AREA)
+
+    int_frame_count += 1
+
+    if bool_success:
+        image_opencv = module_detector.findPose(image_opencv)
+        lmList, bboxInfo = module_detector.findPosition(image_opencv, bboxWithHands=True)
+        blank_img = np.zeros_like(image_opencv)
+
+        draw_point(blank_img, lmList)
+
+        blank_img = blank_img[bboxInfo["bbox"][1]:bboxInfo["bbox"][1] + bboxInfo["bbox"][3], bboxInfo["bbox"][0]:bboxInfo["bbox"][0] + bboxInfo["bbox"][2]]
+
+        if blank_img.size != 0:
+            blank_img = cv2.resize(blank_img, (224, 224), interpolation=cv2.INTER_AREA)
+            text_AI = model_AI(blank_img)[:-1]
+        cv2.putText(image_opencv, text_AI, (bboxInfo["bbox"][0], bboxInfo["bbox"][1] - 20), font_opencv, 2,
+                    (255, 0, 255), 2)
+
+        return image_opencv
+
+
+def OpenCV_surface():
+    global bool_opencv_clicked, bool_semaphore_clicked, check, fps
+
+    clock.tick(fps)
+
+    surface_screen_opencv = pygame.Surface((1100, 600))
+    surface_screen_opencv.fill((25, 25, 25))
+    surface_screen.blit(surface_screen_opencv, (0, 0))
+    pygame.draw.rect(surface_screen, (255, 255, 255), (175, 100, 750, 400), 1)
+
+    image = open_cv()
+
+    try:
+        if not check:
+            if cv2.getWindowProperty("VIDEO", cv2.WND_PROP_VISIBLE) < 1.0:
+                raise EOFError
+        cv2.imshow("VIDEO", image)
+        if not check:
+            if cv2.getWindowProperty("VIDEO", cv2.WND_PROP_VISIBLE) < 1.0:
+                raise EOFError
+        if check:
+            check = False
+
+        if surface_back_button.draw(surface_screen):
+            if bool_check_effect:
+                sound_click_sfx.play()
+
+            raise EOFError
+    except:
+        bool_opencv_clicked = False
+        bool_semaphore_clicked = True
+        cv2.destroyAllWindows()
+
+
+check = True
+
+
+def coming_soon():
+    global bool_coming_soon_clicked, bool_semaphore_clicked, fps
+
+    clock.tick(fps)
+
+    surface_screen_coming_soon = pygame.Surface((1100, 600))
+    surface_screen_coming_soon.fill((25, 25, 25))
+    surface_screen.blit(surface_screen_coming_soon, (0, 0))
+    surface_screen.blit(text_COMING_SOON, (120.5, 205.5))
+
+    if surface_back_button.draw(surface_screen):
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        bool_coming_soon_clicked = False
+        bool_semaphore_clicked = True
 
 
 # Hàm chế độ cài đặt
 def options():
-    global fps, bool_options_clicked, bool_check_FPS, bool_check_music, bool_check_effect, text_options, image_scale, image_fps, text_fps, image_music, text_music, image_effect, text_effect, temp_val_music, temp_val_effect
+    global fps, bool_options_clicked, bool_check_FPS, bool_check_music, bool_check_effect, text_options, image_scale, image_fps, text_fps, image_music, text_music, image_effect, text_effect, temp_val_music, temp_val_effect, bool_status_mod, temp_val_morse_sound_setting
 
     int_dt = clock.tick(fps) / 1000.0
 
@@ -449,11 +605,67 @@ def options():
             except ValueError:
                 pass
 
+    if surface_button_reset.draw(surface_screen):
+        if bool_check_effect:
+            sound_click_sfx.play()
+
+        if not bool_check_FPS == bool(read_json("options_default.json")["options"]["bool_check_FPS"]):
+            surface_button_animation_options_fps.active()
+        if not bool_check_music == bool(read_json("options_default.json")["options"]["bool_check_music"]):
+            surface_button_animation_options_music.active()
+        if not bool_check_effect == bool(read_json("options_default.json")["options"]["bool_check_effect"]):
+            surface_button_animation_options_effect.active()
+        if not bool_status_mod == bool(read_json("options_default.json")["morse_settings"]["bool_status_mod"]):
+            change_mod()
+        temp_val_music = int(read_json("options_default.json")["options"]["temp_val_music"])
+        slider_music.setValue(int(temp_val_music))
+        temp_val_effect = int(read_json("options_default.json")["options"]["temp_val_effect"])
+        slider_effect.setValue(int(temp_val_music))
+        temp_val_morse_sound_setting = int(
+            read_json("options_default.json")["morse_settings"]["temp_val_morse_sound_setting"])
+        slider_morse_sound_setting.setValue(int(temp_val_morse_sound_setting))
+
     if surface_back_button.draw(surface_screen):
         if bool_check_effect:
             sound_click_sfx.play()
 
         bool_options_clicked = False
+
+
+def read_json(filename):
+    file = open(filename, "r", encoding="utf-8")
+    data = json.loads(file.read())
+    file.close()
+    return data
+
+
+def save_json():
+    file = open("options.json", "w", encoding="utf-8")
+    dictionary = {"options": {}, "morse_settings": {}}
+
+    dictionary["options"]["bool_check_FPS"] = str(bool_check_FPS).replace("False", "")
+    dictionary["options"]["bool_check_music"] = str(bool_check_music).replace("False", "")
+    dictionary["options"]["bool_check_effect"] = str(bool_check_effect).replace("False", "")
+    dictionary["morse_settings"]["bool_status_mod"] = str(bool_status_mod).replace("False", "")
+    dictionary["options"]["temp_val_music"] = slider_music.getValue()
+    dictionary["options"]["temp_val_effect"] = slider_effect.getValue()
+    dictionary["morse_settings"]["temp_val_morse_sound_setting"] = slider_morse_sound_setting.getValue()
+
+    file.write(json.dumps(dictionary))
+    file.close()
+
+
+def load_data():
+    global bool_load, temp_val_music, temp_val_effect, temp_val_morse_sound_setting
+    # Load dữ liệu
+    if not bool_load:
+        slider_music.setValue(temp_val_music)
+        slider_effect.setValue(temp_val_effect)
+        slider_morse_sound_setting.setValue(temp_val_morse_sound_setting)
+        bool_load = True
+
+    pygame.mixer.music.set_volume(slider_music.getValue() / 100)
+    sound_click_sfx.set_volume(slider_effect.getValue() / 100)
 
 
 def slider_morse_sound_setting_event():
@@ -462,6 +674,8 @@ def slider_morse_sound_setting_event():
     slider_morse_sound_setting.enable()
 
     output_morse_sound_setting.clear_text_check(True)
+
+    load_data()
 
     if output_morse_sound_setting.get_check_press():
         if output_morse_sound_setting.get_text() != "":
@@ -556,6 +770,7 @@ def slider_effect_event():
 def menu():
     global bool_running, bool_options_clicked, bool_morse_clicked, bool_semaphore_clicked, bool_help_clicked, fps
 
+    # Giới hạn FPS
     clock.tick(fps)
 
     # Đổi màu nền
@@ -576,7 +791,7 @@ def menu():
         if bool_check_effect:
             sound_click_sfx.play()
 
-        # bool_semaphore_clicked = True
+        bool_semaphore_clicked = True
 
     # Chế độ thoát
     if surface_button_quit.draw(surface_screen) and not bool_options_clicked:
@@ -584,13 +799,6 @@ def menu():
             sound_click_sfx.play()
 
         bool_running = False
-
-    # Chế độ hỗ trợ
-    if surface_button_help.draw(surface_screen) and not bool_options_clicked:
-        if bool_check_effect:
-            sound_click_sfx.play()
-
-        bool_help_clicked = not bool_help_clicked
 
     # Chế độ cài đặt
     if surface_button_options.draw(surface_screen) and not bool_options_clicked:
@@ -602,17 +810,23 @@ def menu():
 
 # Chương trình chính
 bool_running = True
-bool_check_FPS = True
-bool_check_music = False
-bool_check_effect = False
+bool_check_FPS = bool(read_json("options.json")["options"]["bool_check_FPS"])
+bool_check_music = bool(read_json("options.json")["options"]["bool_check_music"])
+bool_check_effect = bool(read_json("options.json")["options"]["bool_check_effect"])
 bool_options_clicked = False
 bool_morse_clicked = False
 bool_semaphore_clicked = False
+bool_opencv_clicked = False
 bool_morse_setting_clicked = False
+bool_coming_soon_clicked = False
 bool_help_clicked = False
-bool_status_mod = False
 bool_value_error = False
-
+bool_status_mod = bool(read_json("options.json")["morse_settings"]["bool_status_mod"])
+bool_help_menu = True
+bool_help_morse = False
+bool_help_semaphore = False
+bool_help_options = False
+bool_load = False
 bool_check_text_box_dot = False
 bool_check_text_box_ = False
 
@@ -626,9 +840,9 @@ if not bool_check_music:
     pygame.mixer.music.pause()
 
 # Bộ nhớ
-temp_val_music = 50
-temp_val_effect = 50
-temp_val_morse_sound_setting = 50
+temp_val_music = read_json("options.json")["options"]["temp_val_music"]
+temp_val_effect = read_json("options.json")["options"]["temp_val_effect"]
+temp_val_morse_sound_setting = int(read_json("options.json")["morse_settings"]["temp_val_morse_sound_setting"])
 temp_pos1 = 630
 temp_pos2 = 80
 temp_text_dot = ""
@@ -688,6 +902,11 @@ image_speaker = pygame.image.load("asset\\Image\\SPEAKER.png").convert_alpha()
 
 image_upload = pygame.image.load("asset\\Image\\UPLOAD.png").convert_alpha()
 
+image_leaf = pygame.image.load("asset\\Image\\LEAF.png").convert_alpha()
+image_leaf_size = image_leaf.get_size()
+image_leaf = pygame.transform.smoothscale(image_leaf,
+                                          (image_leaf_size[0] * 0.5, image_leaf_size[1] * 0.5))
+
 image_warning = pygame.image.load("asset\\Image\\WARNING.png").convert_alpha()
 image_warning_size = image_warning.get_size()
 image_warning = pygame.transform.smoothscale(image_warning,
@@ -720,6 +939,10 @@ text_to_dot = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf", 26).render
 
 text_Volume = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf", 30).render("Volume:", True, "#FFFFFF")
 
+text_SEMAPHORE = pygame.font.Font("asset\\Font\\Saira-Thin.ttf", 60).render("SEMAPHORE", True, "#FFFFFF")
+
+text_COMING_SOON = pygame.font.Font("asset\\Font\\Saira-Thin.ttf", 120).render("COMING SOON!", True, "#FFFFFF")
+
 text_box = TextInputBox(30,
                         200,
                         510,
@@ -727,7 +950,7 @@ text_box = TextInputBox(30,
                         10,
                         10,
                         font_family="asset\\Font\\Rokkitt-Thin.ttf",
-                        font_size=26,
+                        font_size=26
                         )
 
 text_box2 = TextInputBox(560,
@@ -746,7 +969,7 @@ text_box_dot = TextInputBox(370,
                             35,
                             35,
                             font_family="asset\\Font\\Montserrat-Regular.ttf",
-                            font_size=26,
+                            font_size=26
                             )
 
 text_box_ = TextInputBox(370,
@@ -754,7 +977,7 @@ text_box_ = TextInputBox(370,
                          35,
                          35,
                          font_family="asset\\Font\\Montserrat-Regular.ttf",
-                         font_size=26,
+                         font_size=26
                          )
 
 text_Document_surface = surface_screen.blit(text_Document, (temp_pos1, 150))
@@ -765,6 +988,9 @@ text_value_error = pygame.font.Font("asset\\Font\\Montserrat-Regular.ttf",
                                     50).render("File format have to .txt",
                                                True,
                                                "#000000")
+
+if bool_status_mod:
+    change_mod()
 
 # Kiểu chữ
 font_fps = pygame.font.Font(None, 30)
@@ -788,6 +1014,24 @@ surface_button_semaphore = Button_TEXT("SEMAPHORE",
                                        20)
 surface_button_semaphore.border((68, 68, 68), 10)
 
+surface_button_live = Button_TEXT("LIVE",
+                                  ("asset\\Font\\SIFONN_BASIC_OUTLINE.otf", 42),
+                                  412,
+                                  144,
+                                  (100, 210),
+                                  (41, 41, 41),
+                                  20)
+surface_button_live.border((68, 68, 68), 10)
+
+surface_button_import_file = Button_TEXT("IMPORT FILE",
+                                         ("asset\\Font\\SIFONN_BASIC_OUTLINE.otf", 40),
+                                         412,
+                                         144,
+                                         (588, 210),
+                                         (41, 41, 41),
+                                         20)
+surface_button_import_file.border((68, 68, 68), 10)
+
 surface_button_help = Button_TEXT("HELP",
                                   ("asset\\Font\\FontsFree-Net-Montserrat-ExtraLight.ttf", 20),
                                   100,
@@ -796,6 +1040,15 @@ surface_button_help = Button_TEXT("HELP",
                                   (41, 41, 41),
                                   10)
 surface_button_help.border((68, 68, 68), 10)
+
+surface_button_reset = Button_TEXT("RESET",
+                                   ("asset\\Font\\FontsFree-Net-Montserrat-ExtraLight.ttf", 20),
+                                   100,
+                                   50,
+                                   (50, 525),
+                                   (41, 41, 41),
+                                   10)
+surface_button_reset.border((68, 68, 68), 10)
 
 surface_button_quit = Button_IMG(1070, 30, image_quit, 0.1, 0.02)
 
@@ -918,11 +1171,21 @@ if not bool_check_music:
 
 sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
 
+load_data()
+
+# OpenCV
+vid_cap = cv2.VideoCapture(0)
+module_detector = PoseDetector()
+font_opencv = cv2.FONT_HERSHEY_SIMPLEX
+int_frame_count = 0
+text_AI = ""
+
 
 def main():
-    global bool_running, events
+    global bool_running, events, mouse_pos
     while bool_running:
         # Sự kiện trong chương trình
+        mouse_pos = pygame.mouse.get_pos()
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
@@ -930,7 +1193,7 @@ def main():
             elif event.type == pygame.USEREVENT and bool_check_music:
                 pygame.mixer.music.play()
 
-        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
+        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
             menu()
             slider_music.hide()
             slider_music.disable()
@@ -939,7 +1202,7 @@ def main():
             slider_morse_sound_setting.hide()
             slider_morse_sound_setting.disable()
             if bool_help_clicked:
-                help_main()
+                help_menu()
                 surface_button_morse.disable()
                 surface_button_semaphore.disable()
                 surface_button_options.disable()
@@ -947,29 +1210,35 @@ def main():
                 surface_button_morse.enable()
                 surface_button_semaphore.enable()
                 surface_button_options.enable()
-        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked:
+        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
             options()
             if bool_help_clicked:
                 help_options()
-        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked:
+        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
             MORSE()
             if bool_help_clicked:
                 help_MORSE()
-        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked:
+        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
             SEMAPHORE()
             if bool_help_clicked:
                 help_SEMAPHORE()
+        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and bool_opencv_clicked and not bool_coming_soon_clicked:
+            OpenCV_surface()
+            if bool_help_clicked:
+                help_OpenCV_surface()
+        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and bool_coming_soon_clicked:
+            coming_soon()
 
         if bool_check_FPS:
             fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
             rect_fps = pygame.rect.Rect(0, 580, fps_screen.get_width(), fps_screen.get_height())
-            mouse_pos = pygame.mouse.get_pos()
             if rect_fps.collidepoint(mouse_pos):
                 fps_screen = font_fps.render("MAX FPS: {}".format(fps), True, (255, 255, 255))
             surface_screen.blit(fps_screen, (0, 580))
 
         pygame.display.flip()
 
+    save_json()
     pygame.quit()
 
 
