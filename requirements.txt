@@ -4,3 +4,5 @@ pyttsx3==2.90
 sounddevice==0.4.6
 numpy==1.25.1
 pygame-imslider==1.0.2
+keras==2.13.1
+pathlib==1.0.1
