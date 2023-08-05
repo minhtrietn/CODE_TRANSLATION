@@ -69,21 +69,7 @@ root.iconphoto(False, image_icon_tk)
 
 # Hàm hỗ trợ
 def help_menu():
-    global bool_help_clicked, bool_help_menu, events
-
-    if not bool_help_menu:
-        bool_help_menu = True
-        slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png",
-                                 "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png",
-                                 "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
-
-    slider_help.update(events)
-    rect_slider_help = slider_help.draw(surface_screen, True)
-
-    if surface_button_quit_help.draw(surface_screen):
-        bool_help_clicked = False
-
-    pygame.display.update(rect_slider_help)
+    pass
 
 
 def help_options():
@@ -1152,13 +1138,6 @@ output_morse_sound_setting = TextInputBox(620,
                                           align_text="center",
                                           font_family="asset\\Font\\Public-Sans-Thin.ttf")
 output_morse_sound_setting.set_text("50")
-
-slider_help = ImSlider((900, 500), renderer=ImSliderRenderer.DARK_CUSTOM)
-slider_help.set_position((surface_screen.get_size()[0] - slider_help.get_size()[0]) / 2,
-                         (surface_screen.get_size()[1] - slider_help.get_size()[1]) / 2)
-slider_help.load_images(["C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\COPY.png",
-                         "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\BACK.png",
-                         "C:\\Users\\minht\\Downloads\\CODE_TRANSLATE\\asset\\Image\\FPS.png"])
 
 # Âm thanh
 pygame.mixer.init()

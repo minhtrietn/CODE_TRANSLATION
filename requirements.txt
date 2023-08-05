@@ -2,7 +2,12 @@ pygame==2.5.0
 pygame-widgets==1.1.1
 pyttsx3==2.90
 sounddevice==0.4.6
-numpy==1.25.1
+numpy==1.24.3
 pygame-imslider==1.0.2
 keras==2.13.1
 pathlib==1.0.1
+tensorflow-intel==2.13.0
+tensorboard==2.13
+protobuf==3.20.3
+opencv-python==4.8.0.74
+mediapipe==0.10.1
