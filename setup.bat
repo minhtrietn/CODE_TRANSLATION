@@ -1,2 +1,2 @@
-pip install -r requirements.txt
 pip install pip --upgrade
+pip install -r requirements.txt
