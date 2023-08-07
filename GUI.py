@@ -47,8 +47,8 @@ except ModuleNotFoundError:
         import numpy as np
     
     except ModuleNotFoundError:
+        os.system("python GUI.py")
         os.system("exit")
-        os.system("run.bat")
 
     print("ĐÃ HOÀN THÀNH VIỆC CÀI ĐẶT THƯ VIỆN!")
 
