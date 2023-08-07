@@ -29,21 +29,26 @@ except ModuleNotFoundError:
 
     print("ĐANG TIẾN HÀNH CÀI ĐẶT THƯ VIỆN")
     os.system("setup.bat")
-    from asset.Dictionary.Button import *
-    from asset.Dictionary.pygametextboxinput import *
-    from asset.Dictionary.pygame_imslider import *
-    from asset.Dictionary.PoseModule import *
-    from pygame_widgets.slider import Slider
-    from tkinter.filedialog import askopenfilename
-    import tkinter as tk
-    import pygame_widgets
-    import json
-    import time
-    import pygame
-    import pyttsx3
-    import sounddevice
-    import cv2
-    import numpy as np
+    try:
+        from asset.Dictionary.Button import *
+        from asset.Dictionary.pygametextboxinput import *
+        from asset.Dictionary.pygame_imslider import *
+        from asset.Dictionary.PoseModule import *
+        from pygame_widgets.slider import Slider
+        from tkinter.filedialog import askopenfilename
+        import tkinter as tk
+        import pygame_widgets
+        import json
+        import time
+        import pygame
+        import pyttsx3
+        import sounddevice
+        import cv2
+        import numpy as np
+    
+    except ModuleNotFoundError:
+        os.system("exit")
+        os.system("run.bat")
 
     print("ĐÃ HOÀN THÀNH VIỆC CÀI ĐẶT THƯ VIỆN!")
 
