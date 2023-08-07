@@ -6,8 +6,8 @@ runpy.run_module("check_version")
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
+print("VUI LÒNG ĐỢI CHƯƠNG TRÌNH KHỞI CHẠY!")
 try:
-    print("VUI LÒNG ĐỢI CHƯƠNG TRÌNH KHỞI CHẠY!")
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
     from asset.Dictionary.pygame_imslider import *
@@ -24,13 +24,11 @@ try:
     import cv2
     import numpy as np
 
-    print("ĐÃ HOÀN THÀNH VIỆC CÀI ĐẶT THƯ VIỆN!")
-
 except ModuleNotFoundError:
     import os
 
+    print("ĐANG TIẾN HÀNH CÀI ĐẶT THƯ VIỆN")
     os.system("setup.bat")
-    print("VUI LÒNG ĐỢI CHƯƠNG TRÌNH KHỞI CHẠY!")
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
     from asset.Dictionary.pygame_imslider import *
