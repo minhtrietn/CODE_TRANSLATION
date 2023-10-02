@@ -11,7 +11,6 @@ try:
     from asset.Dictionary.Button import *
     from asset.Dictionary.pygametextboxinput import *
     from asset.Dictionary.pygame_imslider import *
-    from asset.Dictionary.PoseModule import *
     from pygame_widgets.slider import Slider
     from tkinter.filedialog import askopenfilename
     import tkinter as tk
@@ -21,7 +20,6 @@ try:
     import pygame
     import pyttsx3
     import sounddevice
-    import cv2
     import numpy as np
 
 except ModuleNotFoundError:
@@ -33,7 +31,6 @@ except ModuleNotFoundError:
         from asset.Dictionary.Button import *
         from asset.Dictionary.pygametextboxinput import *
         from asset.Dictionary.pygame_imslider import *
-        from asset.Dictionary.PoseModule import *
         from pygame_widgets.slider import Slider
         from tkinter.filedialog import askopenfilename
         import tkinter as tk
@@ -43,7 +40,6 @@ except ModuleNotFoundError:
         import pygame
         import pyttsx3
         import sounddevice
-        import cv2
         import numpy as np
     
     except ModuleNotFoundError:
@@ -387,7 +383,7 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
 # Hàm chế độ SEMAPHORE
 def SEMAPHORE():
-    global bool_semaphore_clicked, vid_cap, module_detector, font_opencv, int_frame_count, text_AI, bool_opencv_clicked, check, bool_coming_soon_clicked, fps
+    global bool_semaphore_clicked, bool_coming_soon_clicked, fps
 
     clock.tick(fps)
 
@@ -411,94 +407,13 @@ def SEMAPHORE():
             sound_click_sfx.play()
 
         filename = askopenfilename()
-        try:
-            if filename != "":
-                vid_cap = cv2.VideoCapture(filename)
-                module_detector = PoseDetector()
-                font_opencv = cv2.FONT_HERSHEY_SIMPLEX
-                int_frame_count = 0
-                text_AI = ""
-                check = True
-
-                bool_semaphore_clicked = False
-                bool_opencv_clicked = True
-        except:
-            pass
+        print(filename)
 
     if surface_back_button.draw(surface_screen):
         if bool_check_effect:
             sound_click_sfx.play()
 
         bool_semaphore_clicked = False
-
-
-def open_cv():
-    global vid_cap, module_detector, font_opencv, int_frame_count, text_AI
-
-    bool_success, image_opencv = vid_cap.read()
-
-    scale_percent = 60
-    width = int(image_opencv.shape[1] * scale_percent / 100)
-    height = int(image_opencv.shape[0] * scale_percent / 100)
-    dim = (width, height)
-
-    image_opencv = cv2.resize(image_opencv, dim, interpolation=cv2.INTER_AREA)
-
-    int_frame_count += 1
-
-    if bool_success:
-        image_opencv = module_detector.findPose(image_opencv)
-        lmList, bboxInfo = module_detector.findPosition(image_opencv, bboxWithHands=True)
-        blank_img = np.zeros_like(image_opencv)
-
-        draw_point(blank_img, lmList)
-
-        blank_img = blank_img[bboxInfo["bbox"][1]:bboxInfo["bbox"][1] + bboxInfo["bbox"][3], bboxInfo["bbox"][0]:bboxInfo["bbox"][0] + bboxInfo["bbox"][2]]
-
-        if blank_img.size != 0:
-            blank_img = cv2.resize(blank_img, (224, 224), interpolation=cv2.INTER_AREA)
-            text_AI = model_AI(blank_img)[:-1]
-        cv2.putText(image_opencv, text_AI, (bboxInfo["bbox"][0], bboxInfo["bbox"][1] - 20), font_opencv, 2,
-                    (255, 0, 255), 2)
-
-        return image_opencv
-
-
-def OpenCV_surface():
-    global bool_opencv_clicked, bool_semaphore_clicked, check, fps
-
-    clock.tick(fps)
-
-    surface_screen_opencv = pygame.Surface((1100, 600))
-    surface_screen_opencv.fill((25, 25, 25))
-    surface_screen.blit(surface_screen_opencv, (0, 0))
-    pygame.draw.rect(surface_screen, (255, 255, 255), (175, 100, 750, 400), 1)
-
-    image = open_cv()
-
-    try:
-        if not check:
-            if cv2.getWindowProperty("VIDEO", cv2.WND_PROP_VISIBLE) < 1.0:
-                raise EOFError
-        cv2.imshow("VIDEO", image)
-        if not check:
-            if cv2.getWindowProperty("VIDEO", cv2.WND_PROP_VISIBLE) < 1.0:
-                raise EOFError
-        if check:
-            check = False
-
-        if surface_back_button.draw(surface_screen):
-            if bool_check_effect:
-                sound_click_sfx.play()
-
-            raise EOFError
-    except:
-        bool_opencv_clicked = False
-        bool_semaphore_clicked = True
-        cv2.destroyAllWindows()
-
-
-check = True
 
 
 def coming_soon():
@@ -805,7 +720,6 @@ bool_check_effect = bool(read_json("options.json")["options"]["bool_check_effect
 bool_options_clicked = False
 bool_morse_clicked = False
 bool_semaphore_clicked = False
-bool_opencv_clicked = False
 bool_morse_setting_clicked = False
 bool_coming_soon_clicked = False
 bool_help_clicked = False
@@ -1155,13 +1069,6 @@ sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
 
 load_data()
 
-# OpenCV
-vid_cap = cv2.VideoCapture(0)
-module_detector = PoseDetector()
-font_opencv = cv2.FONT_HERSHEY_SIMPLEX
-int_frame_count = 0
-text_AI = ""
-
 
 def main():
     global bool_running, events, mouse_pos
@@ -1175,7 +1082,7 @@ def main():
             elif event.type == pygame.USEREVENT and bool_check_music:
                 pygame.mixer.music.play()
 
-        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
+        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
             menu()
             slider_music.hide()
             slider_music.disable()
@@ -1192,23 +1099,19 @@ def main():
                 surface_button_morse.enable()
                 surface_button_semaphore.enable()
                 surface_button_options.enable()
-        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
+        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
             options()
             if bool_help_clicked:
                 help_options()
-        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
+        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
             MORSE()
             if bool_help_clicked:
                 help_MORSE()
-        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked and not bool_opencv_clicked and not bool_coming_soon_clicked:
+        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked and not bool_coming_soon_clicked:
             SEMAPHORE()
             if bool_help_clicked:
                 help_SEMAPHORE()
-        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and bool_opencv_clicked and not bool_coming_soon_clicked:
-            OpenCV_surface()
-            if bool_help_clicked:
-                help_OpenCV_surface()
-        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_opencv_clicked and bool_coming_soon_clicked:
+        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and bool_coming_soon_clicked:
             coming_soon()
 
         if bool_check_FPS:
