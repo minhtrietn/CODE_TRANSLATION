@@ -41,7 +41,7 @@ except ModuleNotFoundError:
         import pyttsx3
         import sounddevice
         import numpy as np
-    
+
     except ModuleNotFoundError:
         os.system("python GUI.py")
         os.system("exit")
@@ -68,23 +68,32 @@ root.iconphoto(False, image_icon_tk)
 
 # Hàm hỗ trợ
 def help_menu():
-    pass
+    ...
 
 
 def help_options():
-    pass
+    ...
 
 
 def help_MORSE():
-    pass
+    ...
 
 
 def help_SEMAPHORE():
-    pass
+    ...
 
 
 def help_OpenCV_surface():
-    pass
+    ...
+
+
+def effect_clicked():
+    global bool_check_effect
+    if bool_check_effect:
+        try:
+            sound_click_sfx.play()
+        except Exception:
+            ...
 
 
 # Hàm chế độ MORSE
@@ -93,9 +102,7 @@ def MORSE():
 
     clock.tick(fps)
 
-    surface_screen_morse = pygame.Surface((1100, 600))
-    surface_screen_morse.fill((25, 25, 25))
-    surface_screen.blit(surface_screen_morse, (0, 0))
+    surface_screen.fill((25, 25, 25))
 
     surface_screen.blit(text_MORSE_title, (446.5, 20))
 
@@ -107,9 +114,7 @@ def MORSE():
     text_box2.render(surface_screen, (41, 41, 41))
 
     if surface_button_change.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_status_mod = not bool_status_mod
         change_mod()
 
@@ -117,15 +122,11 @@ def MORSE():
     text_Morse_surface = surface_screen.blit(text_Morse, (temp_pos2, 150))
 
     if surface_button_copy.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         pygame.scrap.put(pygame.SCRAP_TEXT, text_box2.get_text().encode())
 
     if surface_button_speaker.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         if not bool_status_mod:
             engine = pyttsx3.init()
             engine.say(text_box2.get_text())
@@ -134,9 +135,7 @@ def MORSE():
             play_morse_code(text_box2.get_text(), slider_morse_sound_setting.getValue() / 100)
 
     if surface_button_upload.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         filename = askopenfilename()
 
         if filename[-4:] == ".txt":
@@ -151,15 +150,11 @@ def MORSE():
             int_check_starter = 1
 
     if surface_back_button.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_morse_clicked = False
 
     if surface_button_setting.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         if bool_morse_setting_clicked:
             bool_morse_setting_clicked = False
         else:
@@ -375,10 +370,13 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
         waveform.append(pause_waveform)
 
-    waveform = np.concatenate(waveform)
-    waveform *= volume
+    try:
+        waveform = np.concatenate(waveform)
+        waveform *= volume
 
-    sounddevice.play(waveform, samplerate=44100)
+        sounddevice.play(waveform, samplerate=44100)
+    except Exception:
+        ...
 
 
 # Hàm chế độ SEMAPHORE
@@ -387,32 +385,24 @@ def SEMAPHORE():
 
     clock.tick(fps)
 
-    surface_screen_semaphore = pygame.Surface((1100, 600))
-    surface_screen_semaphore.fill((25, 25, 25))
-    surface_screen.blit(surface_screen_semaphore, (0, 0))
+    surface_screen.fill((25, 25, 25))
     pygame.draw.rect(surface_screen, (255, 255, 255), (175, 100, 750, 400), 1)
 
     surface_screen.blit(text_SEMAPHORE, (363, 20))
     surface_screen.blit(image_leaf, (900, 340))
 
     if surface_button_live.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_semaphore_clicked = False
         bool_coming_soon_clicked = True
 
     if surface_button_import_file.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         filename = askopenfilename()
         print(filename)
 
     if surface_back_button.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_semaphore_clicked = False
 
 
@@ -421,15 +411,11 @@ def coming_soon():
 
     clock.tick(fps)
 
-    surface_screen_coming_soon = pygame.Surface((1100, 600))
-    surface_screen_coming_soon.fill((25, 25, 25))
-    surface_screen.blit(surface_screen_coming_soon, (0, 0))
+    surface_screen.fill((25, 25, 25))
     surface_screen.blit(text_COMING_SOON, (120.5, 205.5))
 
     if surface_back_button.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_coming_soon_clicked = False
         bool_semaphore_clicked = True
 
@@ -440,9 +426,7 @@ def options():
 
     int_dt = clock.tick(fps) / 1000.0
 
-    surface_screen_options = pygame.Surface((1100, 600))
-    surface_screen_options.fill((25, 25, 25))
-    surface_screen.blit(surface_screen_options, (0, 0))
+    surface_screen.fill((25, 25, 25))
 
     # Text Options
     surface_screen.blit(text_options, (438.5, 40))
@@ -465,25 +449,30 @@ def options():
 
     pygame_widgets.update(events)
 
-    pygame.mixer.music.set_volume(slider_music.getValue() / 100)
-    sound_click_sfx.set_volume(slider_effect.getValue() / 100)
+    try:
+        pygame.mixer.music.set_volume(slider_music.getValue() / 100)
+        sound_click_sfx.set_volume(slider_effect.getValue() / 100)
+    except Exception:
+        ...
 
     # Xử lí điều kiện
     if surface_button_animation_options_fps.draw(surface_screen, int_dt):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_check_FPS = not bool_check_FPS
 
     if surface_button_animation_options_music.draw(surface_screen, int_dt):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_check_music = not bool_check_music
         if bool_check_music:
-            pygame.mixer.music.unpause()
+            try:
+                pygame.mixer.music.unpause()
+            except Exception:
+                ...
         else:
-            pygame.mixer.music.pause()
+            try:
+                pygame.mixer.music.pause()
+            except Exception:
+                ...
 
         if not bool_check_music:
             temp_val_music = slider_music.getValue()
@@ -497,9 +486,7 @@ def options():
     if surface_button_animation_options_effect.draw(surface_screen, int_dt):
         bool_check_effect = not bool_check_effect
 
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         if not bool_check_effect:
             temp_val_effect = slider_effect.getValue()
             slider_effect.setValue(0)
@@ -510,9 +497,7 @@ def options():
                 pass
 
     if surface_button_reset.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         if not bool_check_FPS == bool(read_json("options_default.json")["options"]["bool_check_FPS"]):
             surface_button_animation_options_fps.active()
         if not bool_check_music == bool(read_json("options_default.json")["options"]["bool_check_music"]):
@@ -530,9 +515,7 @@ def options():
         slider_morse_sound_setting.setValue(int(temp_val_morse_sound_setting))
 
     if surface_back_button.draw(surface_screen):
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+        effect_clicked()
         bool_options_clicked = False
 
 
@@ -568,8 +551,11 @@ def load_data():
         slider_morse_sound_setting.setValue(temp_val_morse_sound_setting)
         bool_load = True
 
-    pygame.mixer.music.set_volume(slider_music.getValue() / 100)
-    sound_click_sfx.set_volume(slider_effect.getValue() / 100)
+    try:
+        pygame.mixer.music.set_volume(slider_music.getValue() / 100)
+        sound_click_sfx.set_volume(slider_effect.getValue() / 100)
+    except Exception:
+        ...
 
 
 def slider_morse_sound_setting_event():
@@ -684,31 +670,23 @@ def menu():
     surface_screen.blit(text_code_translation, (340, 100))
 
     # Chế độ MORSE
-    if surface_button_morse.draw(surface_screen) and not bool_options_clicked:
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+    if surface_button_morse.draw(surface_screen):
+        effect_clicked()
         bool_morse_clicked = True
 
     # Chế độ SEMAPHORE
-    if surface_button_semaphore.draw(surface_screen) and not bool_options_clicked:
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+    if surface_button_semaphore.draw(surface_screen):
+        effect_clicked()
         bool_semaphore_clicked = True
 
     # Chế độ thoát
-    if surface_button_quit.draw(surface_screen) and not bool_options_clicked:
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+    if surface_button_quit.draw(surface_screen):
+        effect_clicked()
         bool_running = False
 
     # Chế độ cài đặt
-    if surface_button_options.draw(surface_screen) and not bool_options_clicked:
-        if bool_check_effect:
-            sound_click_sfx.play()
-
+    if surface_button_options.draw(surface_screen):
+        effect_clicked()
         bool_options_clicked = True
 
 
@@ -739,8 +717,11 @@ mouse_pos = pygame.mouse.get_pos()
 clock = pygame.time.Clock()
 fps = 60
 
-if not bool_check_music:
-    pygame.mixer.music.pause()
+try:
+    if not bool_check_music:
+        pygame.mixer.music.pause()
+except Exception:
+    ...
 
 # Bộ nhớ
 temp_val_music = read_json("options.json")["options"]["temp_val_music"]
@@ -1057,15 +1038,19 @@ output_morse_sound_setting = TextInputBox(620,
 output_morse_sound_setting.set_text("50")
 
 # Âm thanh
-pygame.mixer.init()
-pygame.mixer.music.load("asset\\Sound\\music.mp3")
-pygame.mixer.music.play(-1)
-pygame.mixer.music.set_endevent(pygame.USEREVENT)
-pygame.mixer_music.set_volume(0.5)
-if not bool_check_music:
-    pygame.mixer.music.pause()
+try:
+    pygame.mixer.init()
+    pygame.mixer.music.load("asset\\Sound\\music.mp3")
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_endevent(pygame.USEREVENT)
+    pygame.mixer_music.set_volume(0.5)
+    if not bool_check_music:
+        pygame.mixer.music.pause()
 
-sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
+    sound_click_sfx = pygame.mixer.Sound("asset\\Sound\\Click.wav")
+
+except Exception:
+    ...
 
 load_data()
 
@@ -1080,9 +1065,26 @@ def main():
             if event.type == pygame.QUIT:
                 bool_running = False
             elif event.type == pygame.USEREVENT and bool_check_music:
-                pygame.mixer.music.play()
+                try:
+                    pygame.mixer.music.play()
+                except Exception:
+                    ...
 
-        if not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
+        if bool_options_clicked:
+            options()
+            if bool_help_clicked:
+                help_options()
+        elif bool_morse_clicked:
+            MORSE()
+            if bool_help_clicked:
+                help_MORSE()
+        elif bool_semaphore_clicked:
+            SEMAPHORE()
+            if bool_help_clicked:
+                help_SEMAPHORE()
+        elif bool_coming_soon_clicked:
+            coming_soon()
+        else:
             menu()
             slider_music.hide()
             slider_music.disable()
@@ -1099,20 +1101,6 @@ def main():
                 surface_button_morse.enable()
                 surface_button_semaphore.enable()
                 surface_button_options.enable()
-        elif bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
-            options()
-            if bool_help_clicked:
-                help_options()
-        elif not bool_options_clicked and bool_morse_clicked and not bool_semaphore_clicked and not bool_coming_soon_clicked:
-            MORSE()
-            if bool_help_clicked:
-                help_MORSE()
-        elif not bool_options_clicked and not bool_morse_clicked and bool_semaphore_clicked and not bool_coming_soon_clicked:
-            SEMAPHORE()
-            if bool_help_clicked:
-                help_SEMAPHORE()
-        elif not bool_options_clicked and not bool_morse_clicked and not bool_semaphore_clicked and bool_coming_soon_clicked:
-            coming_soon()
 
         if bool_check_FPS:
             fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
