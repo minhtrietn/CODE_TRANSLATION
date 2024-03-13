@@ -188,10 +188,7 @@ def MORSE():
                 elif i == "":
                     pass
                 else:
-                    if len(text) == 0:
-                        text += "#"
-                    else:
-                        text += "# "
+                    text += "#"
                 text_box2.set_text(text)
     else:
         if text_box_dot.get_text() == "" and text_box_.get_text() == "":
@@ -213,7 +210,7 @@ def MORSE():
                     text = text[:-1]
                     text += "\n"
                 else:
-                    text += "#"
+                    text += "# "
                     text_box2.set_text(text)
 
     if bool_morse_setting_clicked:
