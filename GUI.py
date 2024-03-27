@@ -1,6 +1,9 @@
 import runpy
 
-runpy.run_module("check_version")
+try:
+    runpy.run_module("check_version")
+except Exception:
+    ...
 # **********************************************************************************************************************
 # **********************************************************************************************************************
 # **********************************************************************************************************************
@@ -13,6 +16,7 @@ try:
     from asset.Dictionary.pygame_imslider import *
     from pygame_widgets.slider import Slider
     from tkinter.filedialog import askopenfilename
+    from math import degrees, atan2
     import tkinter as tk
     import pygame_widgets
     import json
@@ -21,6 +25,8 @@ try:
     import pyttsx3
     import sounddevice
     import numpy as np
+    import mediapipe as mp
+    import cv2
 
 except ModuleNotFoundError:
     import os
@@ -33,6 +39,7 @@ except ModuleNotFoundError:
         from asset.Dictionary.pygame_imslider import *
         from pygame_widgets.slider import Slider
         from tkinter.filedialog import askopenfilename
+        from math import degrees, atan2
         import tkinter as tk
         import pygame_widgets
         import json
@@ -41,6 +48,8 @@ except ModuleNotFoundError:
         import pyttsx3
         import sounddevice
         import numpy as np
+        import mediapipe as mp
+        import cv2
 
     except ModuleNotFoundError:
         os.system("python GUI.py")
@@ -243,7 +252,7 @@ def change_mod():
 
 
 def value_error_gui():
-    global bool_value_error, int_check_starter, time_start, mouse_pos
+    global bool_value_error, int_check_starter, int_time_start, mouse_pos
     surface_screen_value_error = pygame.Surface((750, 400)).convert_alpha()
     surface_screen_value_error.fill((37, 37, 37))
     surface_screen_value_error.set_alpha(230)
@@ -260,10 +269,10 @@ def value_error_gui():
             bool_value_error = False
 
     if int_check_starter == 1:
-        time_start = time.perf_counter()
+        int_time_start = time.perf_counter()
         int_check_starter += 1
 
-    if time.perf_counter() - time_start >= 5.0:
+    if time.perf_counter() - int_time_start >= 5.0:
         bool_value_error = False
 
 
@@ -378,7 +387,7 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
 # Hàm chế độ SEMAPHORE
 def SEMAPHORE():
-    global bool_semaphore_clicked, bool_coming_soon_clicked, fps
+    global bool_semaphore_clicked, bool_opencv_screen_clicked, bool_video_active, fps, cap, int_width_cap, int_height_cap
 
     clock.tick(fps)
 
@@ -391,30 +400,190 @@ def SEMAPHORE():
     if surface_button_live.draw(surface_screen):
         effect_clicked()
         bool_semaphore_clicked = False
-        bool_coming_soon_clicked = True
+        bool_opencv_screen_clicked = True
+        bool_video_active = True
+        cap = cv2.VideoCapture(1)
+
+        input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        input_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+        int_width_cap = int(input_width * min(750 / input_width, 500 / input_height))
+        int_height_cap = int(input_height * min(750 / input_width, 500 / input_height))
 
     if surface_button_import_file.draw(surface_screen):
         effect_clicked()
         filename = askopenfilename()
-        print(filename)
+        if filename != "":
+            bool_semaphore_clicked = False
+            bool_opencv_screen_clicked = True
+            bool_video_active = True
+            cap = cv2.VideoCapture(filename)
+
+            input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+            input_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+            int_width_cap = int(input_width * min(750 / input_width, 500 / input_height))
+            int_height_cap = int(input_height * min(750 / input_width, 500 / input_height))
 
     if surface_back_button.draw(surface_screen):
         effect_clicked()
         bool_semaphore_clicked = False
 
 
-def coming_soon():
-    global bool_coming_soon_clicked, bool_semaphore_clicked, fps
+def get_angle(a, b, c):
+    angle = degrees(atan2(c["y"] - b["y"], c["x"] - b["x"]) - atan2(a["y"] - b["y"], a["x"] - b["x"]))
+    return angle + 360 if angle < 0 else angle
+
+
+def get_limb_direction(p1, p2, p3, closest_degrees=45):
+    closest_angle = angle = get_angle(p1, p2, p3)
+
+    mod_close = angle % closest_degrees
+    if mod_close < closest_degrees / 2:
+        closest_angle -= mod_close
+    else:
+        closest_angle += closest_degrees - mod_close
+
+    closest_angle = int(closest_angle)
+
+    if closest_angle > 180:
+        closest_angle = closest_angle - 360
+    if angle > 180:
+        angle = angle - 360
+
+    if closest_angle == 0 and angle < -30:
+        closest_angle -= 45
+    elif closest_angle == -90 and angle > -80:
+        closest_angle += 45
+    elif closest_angle == -90 and angle < -110:
+        closest_angle -= 45
+
+    elif closest_angle == 0 and angle > 30:
+        closest_angle += 45
+    elif closest_angle == 90 and angle < 80:
+        closest_angle -= 45
+    elif closest_angle == 90 and angle > 110:
+        closest_angle += 45
+
+    elif closest_angle == 180:
+        if 0 > angle > -167:
+            closest_angle = -135
+        elif 0 < angle < 167:
+            closest_angle = 135
+
+    return closest_angle
+
+def type_semaphore(armL_angle, armR_angle, numerals=False, allow_repeat=None):
+    global current_semaphore, SEMAPHORES
+
+    arm_match = SEMAPHORES.get((armR_angle, armL_angle), "") or SEMAPHORES.get((armL_angle, armR_angle), "")
+    if arm_match:
+        current_semaphore = arm_match.get("n", "") if numerals else arm_match.get("a", "")
+        type_and_remember(allow_repeat)
+        return current_semaphore
+
+    return False
+
+def type_and_remember(allow_repeat=False):
+    global current_semaphore, last_keys
+
+    if len(current_semaphore) == 0:
+        return
+    keys = [current_semaphore]
+    if allow_repeat or (keys != last_keys):
+        last_keys = keys.copy()
+        current_semaphore = ""
+
+def get_key_text(keys):
+    return keys[-1] if keys else ""
+
+def output(keys, image):
+    keystring = "+".join(keys)
+    if keystring:
+        to_display = "space" if get_key_text(keys) == " " else "numeral" if get_key_text(keys) == "N" else "delete" if get_key_text(keys) == "D" else get_key_text(keys)
+        text_size, _ = cv2.getTextSize(to_display, cv2.FONT_HERSHEY_SIMPLEX, 5, 10)
+
+        input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        input_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        frame_midpoint = (int((input_width - text_size[0]) / 2), int((input_height + text_size[1]) / 2))
+
+        cv2.putText(image, to_display, frame_midpoint, cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 0, 255), 10)
+
+
+def OpenCV_screen():
+    global bool_opencv_screen_clicked, bool_semaphore_clicked, bool_video_active, fps, cap, last_frames, last_keys, NUMERAL, counter, int_width_cap, int_height_cap
 
     clock.tick(fps)
 
     surface_screen.fill((25, 25, 25))
-    surface_screen.blit(text_COMING_SOON, (120.5, 205.5))
+    pygame.draw.rect(surface_screen, (255, 255, 255), ((1100 - int_width_cap - 2) / 2, (600 - int_height_cap - 2) / 2, int_width_cap + 2, int_height_cap + 2), 1)
 
     if surface_back_button.draw(surface_screen):
         effect_clicked()
-        bool_coming_soon_clicked = False
+
+        bool_opencv_screen_clicked = False
+        bool_video_active = False
         bool_semaphore_clicked = True
+
+    FLIP = False
+
+    if bool_video_active:
+        success, image = cap.read()
+        if not success:
+            bool_video_active = False
+
+        image.flags.writeable = False
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        pose_results = pose_model.process(image)
+
+        # draw pose
+        mp.solutions.drawing_utils.draw_landmarks(
+            image,
+            pose_results.pose_landmarks,
+            mp.solutions.pose.POSE_CONNECTIONS,
+            DEFAULT_LANDMARKS_STYLE)
+
+        if FLIP:
+            image = cv2.flip(image, 1)
+
+        if pose_results.pose_landmarks:
+            last_frames = last_frames[1:] + [empty_frame.copy()]
+
+            body = []
+            for point in pose_results.pose_landmarks.landmark:
+                body.append({
+                    "x": 1 - point.x,
+                    "y": 1 - point.y,
+                    "visibility": point.visibility
+                })
+
+            elbowL, shoulderL, hipL = body[15], body[11], body[23]
+            armL = (elbowL, shoulderL, hipL)
+
+            elbowR, shoulderR, hipR = body[16], body[12], body[24]
+            armR = (elbowR, shoulderR, hipR)
+
+            armL_angle = get_limb_direction(*armL)
+            armR_angle = get_limb_direction(*armR)
+
+            if type_semaphore(armL_angle, armR_angle, NUMERAL):
+                last_frames[-1]["signed"] = True
+
+                if get_key_text(last_keys) == "N":
+                    counter += 1
+
+                if counter >= 2 and get_key_text(last_keys) == "N":
+                    NUMERAL = not NUMERAL
+                    counter = 0
+
+                output(get_key_text(last_keys), image)
+
+        image = cv2.resize(image, (int_width_cap, int_height_cap))
+        image = cv2.flip(np.rot90(image), 0)
+        image = pygame.surfarray.make_surface(image)
+        surface_screen.blit(image, ((1100 - int_width_cap) / 2, (600 - int_height_cap) / 2))
+    else:
+        cv2.destroyAllWindows()
 
 
 # Hàm chế độ cài đặt
@@ -535,7 +704,7 @@ def save_json():
     dictionary["options"]["temp_val_effect"] = slider_effect.getValue()
     dictionary["morse_settings"]["temp_val_morse_sound_setting"] = slider_morse_sound_setting.getValue()
 
-    file.write(json.dumps(dictionary))
+    file.write(json.dumps(dictionary, indent=4, ensure_ascii=False))
     file.close()
 
 
@@ -696,7 +865,8 @@ bool_options_clicked = False
 bool_morse_clicked = False
 bool_semaphore_clicked = False
 bool_morse_setting_clicked = False
-bool_coming_soon_clicked = False
+bool_opencv_screen_clicked = False
+bool_video_active = False
 bool_help_clicked = False
 bool_value_error = False
 bool_status_mod = bool(read_json("options.json")["morse_settings"]["bool_status_mod"])
@@ -720,6 +890,69 @@ try:
 except Exception:
     ...
 
+# Semaphore
+int_width_cap = 0
+int_height_cap = 0
+
+cap = cv2.VideoCapture(0)
+
+pose_model = mp.solutions.pose.Pose()
+
+DEFAULT_LANDMARKS_STYLE = mp.solutions.drawing_styles.get_default_pose_landmarks_style()
+DEFAULT_HAND_CONNECTIONS_STYLE = mp.solutions.drawing_styles.get_default_hand_connections_style()
+
+FPS = 24
+
+VISIBILITY_THRESHOLD = .8
+STRAIGHT_LIMB_MARGIN = 20
+EXTENDED_LIMB_MARGIN = .8
+
+SEMAPHORES = {
+            (0, 0): {"a": " ", "n": " "},
+            (-45, 0): {"a": "a", "n": "1"},
+            (-90, 0): {"a": "b", "n": "2"},
+            (-135, 0): {"a": "c", "n": "3"},
+            (180, 0): {"a": "d", "n": "4"},
+            (0, 135): {"a": "e", "n": "5"},
+            (0, 90): {"a": "f", "n": "6"},
+            (0, 45): {"a": "g", "n": "7"},
+            (-90, -45): {"a": "h", "n": "8"},
+            (-135, -45): {"a": "i", "n": "9"},
+            (180, 90): {"a": "j", "n": "0"},
+            (-45, 180): {"a": "k"},
+            (-45, 135): {"a": "l"},
+            (-45, 90): {"a": "m"},
+            (-45, 45): {"a": "n"},
+            (-135, -90): {"a": "o"},
+            (-90, 180): {"a": "p"},
+            (-90, 135): {"a": "q"},
+            (-90, 90): {"a": "r"},
+            (-90, 45): {"a": "s"},
+            (180, -135): {"a": "t"},
+            (-135, 135): {"a": "u"},
+            (180, 45): {"a": "v"},
+            (135, 90): {"a": "w"},
+            (45, 135): {"a": "x"},
+            (-135, 90): {"a": "y"},
+            (45, 90): {"a": "z"},
+            (135, 180): {"a": "N", "n": "N"},
+            (-135, 45): {"a": "D", "n": "D"},
+        }
+
+FRAME_HISTORY = 5
+
+empty_frame = {
+    "signed": False,
+}
+last_frames = FRAME_HISTORY * [empty_frame.copy()]
+
+frame_midpoint = (0, 0)
+
+current_semaphore = ""
+last_keys = []
+counter = 0
+NUMERAL = False
+
 # Bộ nhớ
 temp_val_music = read_json("options.json")["options"]["temp_val_music"]
 temp_val_effect = read_json("options.json")["options"]["temp_val_effect"]
@@ -731,10 +964,10 @@ temp_text_ = ""
 text_temp1 = ""
 text_temp2 = ""
 int_check_starter = 0
-time_start = 0
+int_time_start = 0
 string_input = ""
 
-# Thư viện morse
+# Morse
 dic_morse_to_text = {'.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F', '--.': 'G', '....': 'H',
                      '..': 'I',
                      '.---': 'J', '-.-': 'K', '.-..': 'L', '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q',
@@ -1079,8 +1312,8 @@ def main():
             SEMAPHORE()
             if bool_help_clicked:
                 help_SEMAPHORE()
-        elif bool_coming_soon_clicked:
-            coming_soon()
+        elif bool_opencv_screen_clicked:
+            OpenCV_screen()
         else:
             menu()
             slider_music.hide()
