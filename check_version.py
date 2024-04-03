@@ -3,6 +3,7 @@ import zipfile
 import subprocess
 import os
 import shutil
+import runpy
 
 
 def versiontuple(v):
@@ -39,3 +40,5 @@ if versiontuple(new_version) > versiontuple(current_version):
     subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
 
     print("Đã hoàn tất việc nâng cấp!")
+    
+    runpy.run_module("GUI")
