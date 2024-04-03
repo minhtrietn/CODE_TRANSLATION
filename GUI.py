@@ -387,7 +387,7 @@ def play_morse_code(morse_code, volume=1.0, dot_duration=0.1, frequency=440):
 
 # Hàm chế độ SEMAPHORE
 def SEMAPHORE():
-    global bool_semaphore_clicked, bool_opencv_screen_clicked, bool_video_active, fps, cap, int_width_cap, int_height_cap
+    global bool_semaphore_clicked, bool_opencv_screen_clicked, bool_video_active, fps, cap, int_width_cap, int_height_cap, input_width, input_height
 
     clock.tick(fps)
 
@@ -402,7 +402,14 @@ def SEMAPHORE():
         bool_semaphore_clicked = False
         bool_opencv_screen_clicked = True
         bool_video_active = True
-        cap = cv2.VideoCapture(1)
+        FLIP = False
+        FRAME_HISTORY = 5
+        frame_midpoint = (0, 0)
+        current_semaphore = ""
+        last_keys = []
+        counter = 0
+        NUMERAL = False
+        cap = cv2.VideoCapture(0)
 
         input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         input_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -417,6 +424,13 @@ def SEMAPHORE():
             bool_semaphore_clicked = False
             bool_opencv_screen_clicked = True
             bool_video_active = True
+            FLIP = False
+            FRAME_HISTORY = 5
+            frame_midpoint = (0, 0)
+            current_semaphore = ""
+            last_keys = []
+            counter = 0
+            NUMERAL = False
             cap = cv2.VideoCapture(filename)
 
             input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -498,20 +512,19 @@ def get_key_text(keys):
     return keys[-1] if keys else ""
 
 def output(keys, image):
+    global input_width, input_height
     keystring = "+".join(keys)
     if keystring:
         to_display = "space" if get_key_text(keys) == " " else "numeral" if get_key_text(keys) == "N" else "delete" if get_key_text(keys) == "D" else get_key_text(keys)
         text_size, _ = cv2.getTextSize(to_display, cv2.FONT_HERSHEY_SIMPLEX, 5, 10)
 
-        input_width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        input_height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         frame_midpoint = (int((input_width - text_size[0]) / 2), int((input_height + text_size[1]) / 2))
 
         cv2.putText(image, to_display, frame_midpoint, cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 0, 255), 10)
 
 
 def OpenCV_screen():
-    global bool_opencv_screen_clicked, bool_semaphore_clicked, bool_video_active, fps, cap, last_frames, last_keys, NUMERAL, counter, int_width_cap, int_height_cap
+    global bool_opencv_screen_clicked, bool_semaphore_clicked, bool_video_active, fps, cap, last_keys, NUMERAL, counter, int_width_cap, int_height_cap, FLIP
 
     clock.tick(fps)
 
@@ -524,8 +537,6 @@ def OpenCV_screen():
         bool_opencv_screen_clicked = False
         bool_video_active = False
         bool_semaphore_clicked = True
-
-    FLIP = False
 
     if bool_video_active:
         success, image = cap.read()
@@ -547,8 +558,6 @@ def OpenCV_screen():
             image = cv2.flip(image, 1)
 
         if pose_results.pose_landmarks:
-            last_frames = last_frames[1:] + [empty_frame.copy()]
-
             body = []
             for point in pose_results.pose_landmarks.landmark:
                 body.append({
@@ -557,31 +566,22 @@ def OpenCV_screen():
                     "visibility": point.visibility
                 })
 
-            elbowL, shoulderL, hipL = body[15], body[11], body[23]
-            armL = (elbowL, shoulderL, hipL)
-
-            elbowR, shoulderR, hipR = body[16], body[12], body[24]
-            armR = (elbowR, shoulderR, hipR)
-
-            armL_angle = get_limb_direction(*armL)
-            armR_angle = get_limb_direction(*armR)
+            armL_angle = get_limb_direction(body[15], body[11], body[23])
+            armR_angle = get_limb_direction(body[16], body[12], body[24])
 
             if type_semaphore(armL_angle, armR_angle, NUMERAL):
-                last_frames[-1]["signed"] = True
 
                 if get_key_text(last_keys) == "N":
                     counter += 1
 
-                if counter >= 2 and get_key_text(last_keys) == "N":
+                if counter >= 4 and get_key_text(last_keys) == "N":
                     NUMERAL = not NUMERAL
                     counter = 0
 
                 output(get_key_text(last_keys), image)
 
-        image = cv2.resize(image, (int_width_cap, int_height_cap))
-        image = cv2.flip(np.rot90(image), 0)
-        image = pygame.surfarray.make_surface(image)
-        surface_screen.blit(image, ((1100 - int_width_cap) / 2, (600 - int_height_cap) / 2))
+        image = cv2.flip(np.rot90(cv2.resize(image, (int_width_cap, int_height_cap))), 0)
+        surface_screen.blit(pygame.surfarray.make_surface(image), ((1100 - int_width_cap) / 2, (600 - int_height_cap) / 2))
     else:
         cv2.destroyAllWindows()
 
@@ -896,12 +896,12 @@ int_height_cap = 0
 
 cap = cv2.VideoCapture(0)
 
-pose_model = mp.solutions.pose.Pose()
+pose_model = mp.solutions.pose.Pose(min_detection_confidence=0.55)
 
 DEFAULT_LANDMARKS_STYLE = mp.solutions.drawing_styles.get_default_pose_landmarks_style()
-DEFAULT_HAND_CONNECTIONS_STYLE = mp.solutions.drawing_styles.get_default_hand_connections_style()
 
 FPS = 24
+FLIP = False
 
 VISIBILITY_THRESHOLD = .8
 STRAIGHT_LIMB_MARGIN = 20
@@ -940,11 +940,6 @@ SEMAPHORES = {
         }
 
 FRAME_HISTORY = 5
-
-empty_frame = {
-    "signed": False,
-}
-last_frames = FRAME_HISTORY * [empty_frame.copy()]
 
 frame_midpoint = (0, 0)
 
@@ -1333,13 +1328,13 @@ def main():
                 surface_button_options.enable()
 
         if bool_check_FPS:
-            fps_screen = font_fps.render("FPS {}".format(int(clock.get_fps())), True, (255, 255, 255))
+            fps_screen = font_fps.render(f"FPS {int(clock.get_fps())}", True, (255, 255, 255))
             rect_fps = pygame.rect.Rect(0, 580, fps_screen.get_width(), fps_screen.get_height())
             if rect_fps.collidepoint(mouse_pos):
-                fps_screen = font_fps.render("MAX FPS: {}".format(fps), True, (255, 255, 255))
+                fps_screen = font_fps.render(f"MAX FPS: {fps}", True, (255, 255, 255))
             surface_screen.blit(fps_screen, (0, 580))
 
-        pygame.display.flip()
+        pygame.display.update()
 
     save_json()
     pygame.quit()
