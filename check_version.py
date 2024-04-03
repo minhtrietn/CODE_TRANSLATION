@@ -1,9 +1,8 @@
-import urllib.request
-import zipfile
-import subprocess
 import os
 import shutil
-import runpy
+import subprocess
+import urllib.request
+import zipfile
 
 
 def versiontuple(v):
@@ -40,5 +39,3 @@ if versiontuple(new_version) > versiontuple(current_version):
     subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
 
     print("Đã hoàn tất việc nâng cấp!")
-    
-    runpy.run_module("GUI")
