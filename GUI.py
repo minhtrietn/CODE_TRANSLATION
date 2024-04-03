@@ -900,12 +900,7 @@ pose_model = mp.solutions.pose.Pose(min_detection_confidence=0.55)
 
 DEFAULT_LANDMARKS_STYLE = mp.solutions.drawing_styles.get_default_pose_landmarks_style()
 
-FPS = 24
 FLIP = False
-
-VISIBILITY_THRESHOLD = .8
-STRAIGHT_LIMB_MARGIN = 20
-EXTENDED_LIMB_MARGIN = .8
 
 SEMAPHORES = {
             (0, 0): {"a": " ", "n": " "},
@@ -938,10 +933,6 @@ SEMAPHORES = {
             (135, 180): {"a": "N", "n": "N"},
             (-135, 45): {"a": "D", "n": "D"},
         }
-
-FRAME_HISTORY = 5
-
-frame_midpoint = (0, 0)
 
 current_semaphore = ""
 last_keys = []
