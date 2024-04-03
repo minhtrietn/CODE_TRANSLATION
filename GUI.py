@@ -1,9 +1,7 @@
 import runpy
-import sys
 
 try:
     runpy.run_module("check_version")
-    sys.exit(0)
 except Exception:
     ...
 # **********************************************************************************************************************
