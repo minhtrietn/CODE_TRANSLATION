@@ -1,1 +1,13 @@
-{"options": {"bool_check_FPS": "", "bool_check_music": "True", "bool_check_effect": "True", "temp_val_music": 50, "temp_val_effect": 50}, "morse_settings": {"bool_status_mod": "True", "temp_val_morse_sound_setting": 50}}
+{
+    "options": {
+        "bool_check_FPS": "",
+        "bool_check_music": "True",
+        "bool_check_effect": "True",
+        "temp_val_music": 50,
+        "temp_val_effect": 50
+    },
+    "morse_settings": {
+        "bool_status_mod": "",
+        "temp_val_morse_sound_setting": 50
+    }
+}
