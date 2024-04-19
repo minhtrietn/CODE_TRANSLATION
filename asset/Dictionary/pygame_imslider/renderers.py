@@ -1,7 +1,40 @@
 # -*- coding: utf-8 -*-
 
-from CODE_TRANSLATE.asset.Dictionary.Button import AAfilledRoundedRect
 import pygame
+
+
+class AAfilledRoundedRect:
+    def __init__(self, surface, rect=(0, 0, 0, 0), color: tuple or list = (0, 0, 0), radius: float = 1):
+        rect = pygame.rect.Rect(rect)
+        color = pygame.color.Color(color)
+        alpha = color.a
+        color.a = 0
+        pos = rect.topleft
+        rect.topleft = 0, 0
+
+        if radius > 1.0:
+            raise ValueError("Max radius is 1.0")
+
+        rectangle = pygame.surface.Surface(rect.size, pygame.constants.SRCALPHA).convert_alpha()
+        circle = pygame.surface.Surface([min(rect.size) * 3] * 2, pygame.constants.SRCALPHA).convert_alpha()
+        pygame.draw.ellipse(circle, (0, 0, 0), circle.get_rect())
+        circle = pygame.transform.smoothscale(circle, [int(min(rect.size) * radius)] * 2)
+
+        radius = rectangle.blit(circle, (0, 0))
+        radius.bottomright = rect.bottomright
+        rectangle.blit(circle, radius)
+        radius.topright = rect.topright
+        rectangle.blit(circle, radius)
+        radius.bottomleft = rect.bottomleft
+        rectangle.blit(circle, radius)
+
+        rectangle.fill((0, 0, 0), rect.inflate(-radius.w, 0))
+        rectangle.fill((0, 0, 0), rect.inflate(0, -radius.h))
+
+        rectangle.fill(color, special_flags=pygame.constants.BLEND_RGBA_MAX)
+        rectangle.fill((255, 255, 255, alpha), special_flags=pygame.constants.BLEND_RGBA_MIN)
+
+        surface.blit(rectangle, pos)
 
 
 def colorize(image, color):
