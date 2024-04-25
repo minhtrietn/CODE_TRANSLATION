@@ -1,2 +1,2 @@
-# CODE_TRASNLATION
-In Teaster
+## CODE_TRASNLATION
+# How to setup?
