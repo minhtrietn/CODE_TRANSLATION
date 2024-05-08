@@ -275,6 +275,7 @@ class Animation_Toggle:
         self.bool_stop = True
         self.bool_active = False
         self.started = False
+        self.clicked = False
 
     def draw(self, screen, dt):
         if not self.started:
@@ -301,12 +302,16 @@ class Animation_Toggle:
 
         if background.collidepoint(mouse_pos) or self.bool_active:
             if pygame.mouse.get_pressed()[0] or self.bool_active:
-                self.bool_stop = False
-                self.bool_active = False
-                if self.x_circle <= self.x + (self.height - self.scale) / 2:
-                    self.bool_check = False
-                elif self.x_circle >= self.x + (self.width - self.scale - (self.height - self.scale) / 2):
-                    self.bool_check = True
+                self.clicked = True
+            else:
+                if self.clicked:
+                    self.clicked = False
+                    self.bool_stop = False
+                    self.bool_active = False
+                    if self.x_circle <= self.x + (self.height - self.scale) / 2:
+                        self.bool_check = False
+                    elif self.x_circle >= self.x + (self.width - self.scale - (self.height - self.scale) / 2):
+                        self.bool_check = True
 
         movement = self.speed * dt
         if not self.bool_check and not self.bool_stop:
