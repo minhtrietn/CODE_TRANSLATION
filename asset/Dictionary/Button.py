@@ -301,13 +301,19 @@ class Animation_Toggle:
         mouse_pos = pygame.mouse.get_pos()
 
         if background.collidepoint(mouse_pos) or self.bool_active:
-            if pygame.mouse.get_pressed()[0] or self.bool_active:
+            if pygame.mouse.get_pressed()[0]:
                 self.clicked = True
+            elif self.bool_active:
+                self.bool_active = False
+                self.bool_stop = False
+                if self.x_circle <= self.x + (self.height - self.scale) / 2:
+                    self.bool_check = False
+                elif self.x_circle >= self.x + (self.width - self.scale - (self.height - self.scale) / 2):
+                    self.bool_check = True
             else:
                 if self.clicked:
                     self.clicked = False
                     self.bool_stop = False
-                    self.bool_active = False
                     if self.x_circle <= self.x + (self.height - self.scale) / 2:
                         self.bool_check = False
                     elif self.x_circle >= self.x + (self.width - self.scale - (self.height - self.scale) / 2):
