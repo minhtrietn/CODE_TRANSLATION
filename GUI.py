@@ -140,7 +140,7 @@ def MORSE():
 
     if surface_button_upload.draw(surface_screen):
         effect_clicked()
-        filename = askopenfilename()
+        filename = askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
 
         if filename[-4:] == ".txt":
             string_filename = ""
@@ -432,7 +432,7 @@ def SEMAPHORE():
 
     if surface_button_import_file.draw(surface_screen):
         effect_clicked()
-        filename = askopenfilename()
+        filename = askopenfilename(filetypes=[("Video files", "*.mp4*"), ("All files", "*.*")])
         if filename[-4:] == ".mp4":
             bool_semaphore_clicked = False
             bool_opencv_screen_clicked = True
