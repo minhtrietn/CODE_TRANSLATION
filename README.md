@@ -20,6 +20,7 @@
 
 + Live running mode (use camera to identify in real time)
 + Run mode with imported video file
+
 *All have image reverse function*
 
 **The software is still being improved in terms of its performance and functions. If you have any problems or suggestions, please contact via email: minhtriet2009n@gmail.com**
@@ -50,6 +51,7 @@ https://github.com/minhtrietn/CODE_TRANSLATION/assets/119598743/85cfd4b5-e11f-41
 
 + Chế độ chạy trực tiếp (sử dụng camera để xác định với thời gian thực)
 + Chế độ chạy với tệp video được truyền vào
+
 *Đều có chức năng đảo ngược ảnh*
 
 **Phần mềm vẫn đang được cải thiện về mặt hiệu năng và các chức năng của nó. Nếu có vấn đề hay góp ý xin vui lòng liên hệ qua email: minhtriet2009n@gmail.com**
