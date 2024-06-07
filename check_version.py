@@ -40,4 +40,4 @@ try:
 
         print("Đã hoàn tất việc nâng cấp!")
 except Exception:
-    ...
+    print("Không thể kiểm tra phiên bản mới. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.")
