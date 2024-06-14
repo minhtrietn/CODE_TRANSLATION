@@ -250,8 +250,6 @@ def change_mod():
 def value_error_gui(txt=False, mp4=False):
     global bool_value_error, int_check_starter, int_time_start, mouse_pos
     if txt:
-        print(text_value_error_txt.get_size() + image_warning.get_size())
-        print(text_value_error_mp4.get_width() - text_value_error_txt.get_width())
         surface_screen_value_error = pygame.Surface((750, 400)).convert_alpha()
         surface_screen_value_error.fill((160, 160, 160))
         surface_screen_value_error.set_alpha(230)
