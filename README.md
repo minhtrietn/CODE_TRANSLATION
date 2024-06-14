@@ -23,6 +23,25 @@
 
 *All have image reverse function*
 
+# Some reference sources:
+**- Translate semaphore: https://github.com/everythingishacked/Semaphore**
+
+**- Instructions for making buttons:**
+
++ https://www.youtube.com/@CodingWithRuss
+
++ https://www.youtube.com/@ClearCode
+
+**- Edited two library sources:**
+
++ https://github.com/YashJogani/pygame-textinput
+
++ https://github.com/anxuae/pygame-imslider
+
+**- Source code rounded rect with antialias:**
+
++ https://www.pygame.org/project-AAfilledRoundedRect-2349-.html
+
 **The software is still being improved in terms of its performance and functions. If you have any problems or suggestions, please contact via email: minhtriet2009n@gmail.com**
 
 # Cách cài đặt?
@@ -53,5 +72,25 @@ https://github.com/minhtrietn/CODE_TRANSLATION/assets/119598743/85cfd4b5-e11f-41
 + Chế độ chạy với tệp video được truyền vào
 
 *Đều có chức năng đảo ngược ảnh*
+
+# Một số nguồn tham khảo:
+**- Dịch semaphore:**
+https://github.com/everythingishacked/Semaphore
+
+**- Kênh hướng dẫn làm các button:**
+
++ https://www.youtube.com/@CodingWithRuss
+
++ https://www.youtube.com/@ClearCode
+
+**- Nguồn thư viện hai thư viện được chỉnh sửa:**
+
++ https://github.com/YashJogani/pygame-textinput
+
++ https://github.com/anxuae/pygame-imslider
+
+**- Mã nguồn rounded rect với antialias:**
+
++ https://www.pygame.org/project-AAfilledRoundedRect-2349-.html 
 
 **Phần mềm vẫn đang được cải thiện về mặt hiệu năng và các chức năng của nó. Nếu có vấn đề hay góp ý xin vui lòng liên hệ qua email: minhtriet2009n@gmail.com**
